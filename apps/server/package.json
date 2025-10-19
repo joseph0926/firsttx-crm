@@ -1,0 +1,34 @@
+{
+  "name": "@firsttx-crm/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NestJS GraphQL server for FirstTx CRM",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "typecheck": "tsc --noEmit",
+    "db:gen": "prisma generate",
+    "db:mig": "prisma migrate dev",
+    "db:stu": "prisma studio"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "@nestjs/apollo": "^13.2.1",
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/graphql": "^13.2.0",
+    "@nestjs/platform-fastify": "^11.1.6",
+    "@prisma/client": "^6.17.1",
+    "graphql": "^16.11.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "prisma": "^6.17.1"
+  }
+}
