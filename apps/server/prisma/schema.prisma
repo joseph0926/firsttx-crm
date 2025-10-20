@@ -1,9 +1,121 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email String  @unique
+  name  String?
+
+  contacts     Contact[]
+  tasks        Task[]
+  interactions Interaction[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model MagicLink {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  email     String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([token])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("magic_links")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name     String
+  email    String?
+  phone    String?
+  company  String?
+  position String?
+  notes    String?
+  tags     String[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  interactions Interaction[]
+  tasks        Task[]
+
+  @@index([userId])
+  @@index([email])
+  @@index([updatedAt])
+  @@map("contacts")
+}
+
+enum InteractionType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+}
+
+model Interaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type  InteractionType
+  date  DateTime
+  notes String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([contactId])
+  @@index([date])
+  @@map("interactions")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title   String
+  status  TaskStatus @default(TODO)
+  dueDate DateTime?
+  notes   String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([contactId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tasks")
 }

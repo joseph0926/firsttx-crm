@@ -4,6 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import type { ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AppResolver } from './app.resolver';
       playground: true,
       sortSchema: true,
     }),
+    PrismaModule,
   ],
   controllers: [],
   providers: [AppResolver],
