@@ -5,6 +5,7 @@ import type { ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PrismaModule } from './prisma/prisma.module';
       sortSchema: true,
     }),
     PrismaModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [AppResolver],
