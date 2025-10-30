@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "A CRM that eliminates blank screens on return visits, demonstrating FirstTx's approach to CSR apps with SSR-level user experience.",
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.20.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
