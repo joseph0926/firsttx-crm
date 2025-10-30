@@ -51,6 +51,10 @@ model Contact {
   notes    String?
   tags     String[]
 
+  lastContactedAt DateTime?
+  priority        ContactPriority @default(MEDIUM)
+  status          ContactStatus   @default(LEAD)
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -60,7 +64,23 @@ model Contact {
   @@index([userId])
   @@index([email])
   @@index([updatedAt])
+  @@index([lastContactedAt])
+  @@index([status])
   @@map("contacts")
+}
+
+enum ContactPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ContactStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+  LOST
 }
 
 enum InteractionType {
@@ -104,8 +124,10 @@ model Task {
 
   title   String
   status  TaskStatus @default(TODO)
-  dueDate DateTime?
+  dueDate DateTime
   notes   String?
+
+  priority TaskPriority @default(MEDIUM)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -117,5 +139,13 @@ model Task {
   @@index([contactId])
   @@index([status])
   @@index([dueDate])
+  @@index([priority])
   @@map("tasks")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
