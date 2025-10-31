@@ -11,8 +11,8 @@ export class User {
   @Field()
   email!: string;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
   @Field()
   createdAt!: Date;
@@ -20,12 +20,12 @@ export class User {
   @Field()
   updatedAt!: Date;
 
-  @Field(() => [Contact])
-  contacts!: Contact[];
+  @Field(() => [Contact], { nullable: true })
+  contacts?: Contact[];
 
-  @Field(() => [Interaction])
-  interactions!: Interaction[];
+  @Field(() => [Interaction], { nullable: true })
+  interactions?: Interaction[];
 
-  @Field(() => [Task])
-  tasks!: Task[];
+  @Field(() => [Task], { nullable: true })
+  tasks?: Task[];
 }

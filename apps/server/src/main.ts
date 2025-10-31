@@ -1,9 +1,18 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: process.env.NODE_ENV === 'production',
+      transform: true,
+    })
+  );
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
