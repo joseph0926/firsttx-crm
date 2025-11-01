@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ContactsModule } from './contacts/contacts.module';
     UsersModule,
     AuthModule,
     ContactsModule,
+    TasksModule,
   ],
   controllers: [],
   providers: [AppResolver],

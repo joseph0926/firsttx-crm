@@ -26,7 +26,7 @@ export class Task {
   dueDate!: Date;
 
   @Field({ nullable: true })
-  notes?: string;
+  description?: string;
 
   @Field(() => TaskPriority)
   priority!: TaskPriority;
