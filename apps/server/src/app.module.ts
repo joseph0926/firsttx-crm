@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { TasksModule } from './tasks/tasks.module';
+import { InteractionsModule } from './interactions/interactions.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TasksModule } from './tasks/tasks.module';
     AuthModule,
     ContactsModule,
     TasksModule,
+    InteractionsModule,
   ],
   controllers: [],
   providers: [AppResolver],
