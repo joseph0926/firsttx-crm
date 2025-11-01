@@ -3,10 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { CreateInteractionInput } from './dto/create-interaction.input';
 import { UpdateInteractionInput } from './dto/update-interaction.input';
-import {
-  InteractionFiltersInput,
-  SortOrder,
-} from './dto/interaction-filters.input';
+import { InteractionFiltersInput } from './dto/interaction-filters.input';
+import { SortOrder } from '../common/enums/sort-order.enum';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

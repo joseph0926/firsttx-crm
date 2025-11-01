@@ -1,6 +1,7 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { SortOrder } from '../../common/enums/sort-order.enum';
 
 export enum TaskSortField {
   CREATED_AT = 'createdAt',
@@ -9,17 +10,8 @@ export enum TaskSortField {
   STATUS = 'status',
 }
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
 registerEnumType(TaskSortField, {
   name: 'TaskSortField',
-});
-
-registerEnumType(SortOrder, {
-  name: 'SortOrder',
 });
 
 @InputType()

@@ -1,6 +1,7 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { InteractionType } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { SortOrder } from '../../common/enums/sort-order.enum';
 
 export enum InteractionSortField {
   CREATED_AT = 'createdAt',
@@ -8,17 +9,8 @@ export enum InteractionSortField {
   TYPE = 'type',
 }
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
 registerEnumType(InteractionSortField, {
   name: 'InteractionSortField',
-});
-
-registerEnumType(SortOrder, {
-  name: 'SortOrder',
 });
 
 @InputType()
