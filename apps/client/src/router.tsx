@@ -3,6 +3,7 @@ import RootPage, { loader as rootLoader } from './routes/root';
 import LoginPage from './routes/login';
 import AuthVerifyPage from './routes/auth-verify';
 import DashboardPage, { loader as dashboardLoader } from './routes/dashboard';
+import { AppLayout } from './components/layout/AppLayout';
 
 export const router = createBrowserRouter([
   {
@@ -19,8 +20,13 @@ export const router = createBrowserRouter([
     element: <AuthVerifyPage />,
   },
   {
-    path: '/dashboard',
-    element: <DashboardPage />,
-    loader: dashboardLoader,
+    element: <AppLayout />,
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+        loader: dashboardLoader,
+      },
+    ],
   },
 ]);

@@ -1,15 +1,15 @@
 import { requireAuth } from '@/lib/auth';
 
-export function loader() {
-  const auth = requireAuth();
+export async function loader() {
+  const auth = await requireAuth();
   return { user: auth.user };
 }
 
 export default function DashboardPage() {
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome to your dashboard</p>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold">Dashboard</h1>
+      <p className="text-muted-foreground mt-2">Welcome to your dashboard</p>
     </div>
   );
 }

@@ -1,14 +1,14 @@
 import { redirect } from 'react-router';
 import { AuthModel } from '@/models/auth';
 
-export function requireAuth() {
-  const auth = AuthModel.getCachedSnapshot();
+export async function requireAuth() {
+  const auth = await AuthModel.getSnapshot();
   if (!auth) {
     throw redirect('/login');
   }
   return auth;
 }
 
-export function getAuth() {
-  return AuthModel.getCachedSnapshot();
+export async function getAuth() {
+  return await AuthModel.getSnapshot();
 }

@@ -5,6 +5,8 @@ import type { UserDetailFragment } from '@/gql/graphql';
 
 type AuthContextValue = {
   auth: AuthData;
+  user: Omit<UserDetailFragment, '__typename'> | null;
+  isAuthenticated: boolean;
   login: (token: string, user: Omit<UserDetailFragment, '__typename'>) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -28,13 +30,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await AuthModel.replace(null);
   };
 
+  const contextValue: AuthContextValue = {
+    auth,
+    user: auth?.user ?? null,
+    isAuthenticated: !!auth,
+    login,
+    logout,
+  };
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
