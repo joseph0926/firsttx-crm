@@ -1,0 +1,52 @@
+fragment ContactCore on Contact {
+  id
+  name
+}
+
+fragment ContactContactInfo on Contact {
+  email
+  phone
+}
+
+fragment ContactBusinessInfo on Contact {
+  company
+  position
+}
+
+fragment ContactStatus on Contact {
+  status
+  priority
+}
+
+fragment ContactMetadata on Contact {
+  tags
+  notes
+}
+
+fragment ContactTimestamps on Contact {
+  createdAt
+  updatedAt
+  lastContactedAt
+}
+
+fragment ContactListItem on Contact {
+  ...ContactCore
+  ...ContactContactInfo
+  ...ContactStatus
+  lastContactedAt
+}
+
+fragment ContactCard on Contact {
+  ...ContactListItem
+  ...ContactBusinessInfo
+  tags
+}
+
+fragment ContactDetail on Contact {
+  ...ContactCore
+  ...ContactContactInfo
+  ...ContactBusinessInfo
+  ...ContactStatus
+  ...ContactMetadata
+  ...ContactTimestamps
+}

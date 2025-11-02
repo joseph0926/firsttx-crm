@@ -1,0 +1,238 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
+type Contact {
+  company: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  interactions: [Interaction!]!
+  lastContactedAt: DateTime
+  name: String!
+  notes: String
+  phone: String
+  position: String
+  priority: ContactPriority!
+  status: ContactStatus!
+  tags: [String!]!
+  tasks: [Task!]!
+  updatedAt: DateTime!
+  user: User!
+}
+
+enum ContactPriority {
+  HIGH
+  LOW
+  MEDIUM
+  URGENT
+}
+
+enum ContactStatus {
+  ACTIVE
+  INACTIVE
+  LEAD
+  LOST
+}
+
+input CreateContactInput {
+  company: String
+  email: String
+  lastContactedAt: DateTime
+  name: String!
+  notes: String
+  phone: String
+  position: String
+  priority: ContactPriority
+  status: ContactStatus
+  tags: [String!]! = []
+}
+
+input CreateInteractionInput {
+  contactId: String!
+  date: DateTime!
+  notes: String
+  type: InteractionType!
+}
+
+input CreateTaskInput {
+  contactId: String
+  description: String
+  dueDate: DateTime!
+  priority: TaskPriority
+  status: TaskStatus
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Interaction {
+  contact: Contact!
+  createdAt: DateTime!
+  date: DateTime!
+  id: ID!
+  notes: String
+  type: InteractionType!
+  updatedAt: DateTime!
+  user: User!
+}
+
+input InteractionFiltersInput {
+  contactId: String
+  dateFrom: DateTime
+  dateTo: DateTime
+  sortBy: InteractionSortField
+  sortOrder: SortOrder
+  type: InteractionType
+}
+
+enum InteractionSortField {
+  CREATED_AT
+  DATE
+  TYPE
+}
+
+enum InteractionType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+}
+
+type MagicLinkResponse {
+  expiresInMinutes: Int
+  message: String!
+  success: Boolean!
+}
+
+type Mutation {
+  createContact(input: CreateContactInput!): Contact!
+  createInteraction(input: CreateInteractionInput!): Interaction!
+  createTask(input: CreateTaskInput!): Task!
+  removeContact(id: String!): Contact!
+  removeInteraction(id: String!): Interaction!
+  removeTask(id: String!): Task!
+  requestMagicLink(input: RequestMagicLinkInput!): MagicLinkResponse!
+  updateContact(id: String!, input: UpdateContactInput!): Contact!
+  updateInteraction(id: String!, input: UpdateInteractionInput!): Interaction!
+  updateTask(id: String!, input: UpdateTaskInput!): Task!
+  verifyMagicLink(input: VerifyMagicLinkInput!): AuthResponse!
+}
+
+type Query {
+  contact(id: String!): Contact!
+  contacts: [Contact!]!
+
+  """Health check endpoint"""
+  hello: String!
+  interaction(id: String!): Interaction!
+  interactions(filters: InteractionFiltersInput): [Interaction!]!
+  me: User!
+  task(id: String!): Task!
+  tasks(filters: TaskFiltersInput): [Task!]!
+}
+
+input RequestMagicLinkInput {
+  email: String!
+  name: String
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+type Task {
+  contact: Contact
+  createdAt: DateTime!
+  description: String
+  dueDate: DateTime!
+  id: ID!
+  priority: TaskPriority!
+  status: TaskStatus!
+  title: String!
+  updatedAt: DateTime!
+  user: User!
+}
+
+input TaskFiltersInput {
+  contactId: String
+  dueDateFrom: DateTime
+  dueDateTo: DateTime
+  priority: TaskPriority
+  sortBy: TaskSortField
+  sortOrder: SortOrder
+  status: TaskStatus
+}
+
+enum TaskPriority {
+  HIGH
+  LOW
+  MEDIUM
+  URGENT
+}
+
+enum TaskSortField {
+  CREATED_AT
+  DUE_DATE
+  PRIORITY
+  STATUS
+}
+
+enum TaskStatus {
+  DONE
+  IN_PROGRESS
+  TODO
+}
+
+input UpdateContactInput {
+  company: String
+  email: String
+  lastContactedAt: DateTime
+  name: String
+  notes: String
+  phone: String
+  position: String
+  priority: ContactPriority
+  status: ContactStatus
+  tags: [String!] = []
+}
+
+input UpdateInteractionInput {
+  contactId: String
+  date: DateTime
+  notes: String
+  type: InteractionType
+}
+
+input UpdateTaskInput {
+  contactId: String
+  description: String
+  dueDate: DateTime
+  priority: TaskPriority
+  status: TaskStatus
+  title: String
+}
+
+type User {
+  contacts: [Contact!]
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  interactions: [Interaction!]
+  name: String
+  tasks: [Task!]
+  updatedAt: DateTime!
+}
+
+input VerifyMagicLinkInput {
+  token: String!
+}

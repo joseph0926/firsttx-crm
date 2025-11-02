@@ -1,0 +1,17 @@
+mutation CreateContact($input: CreateContactInput!) {
+  createContact(input: $input) {
+    ...ContactDetail
+  }
+}
+
+mutation UpdateContact($id: String!, $input: UpdateContactInput!) {
+  updateContact(id: $id, input: $input) {
+    ...ContactDetail
+  }
+}
+
+mutation RemoveContact($id: String!) {
+  removeContact(id: $id) {
+    ...ContactCore
+  }
+}
