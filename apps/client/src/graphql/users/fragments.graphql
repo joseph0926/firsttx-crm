@@ -1,0 +1,15 @@
+fragment UserCore on User {
+  id
+  email
+  name
+}
+
+fragment UserTimestamps on User {
+  createdAt
+  updatedAt
+}
+
+fragment UserDetail on User {
+  ...UserCore
+  ...UserTimestamps
+}

@@ -1,0 +1,16 @@
+mutation RequestMagicLink($input: RequestMagicLinkInput!) {
+  requestMagicLink(input: $input) {
+    success
+    message
+    expiresInMinutes
+  }
+}
+
+mutation VerifyMagicLink($input: VerifyMagicLinkInput!) {
+  verifyMagicLink(input: $input) {
+    accessToken
+    user {
+      ...UserDetail
+    }
+  }
+}
