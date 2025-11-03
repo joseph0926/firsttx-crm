@@ -40,6 +40,20 @@ enum ContactStatus {
   LOST
 }
 
+type ContactsStats {
+  """Number of active contacts"""
+  active: Int!
+
+  """Number of inactive contacts"""
+  inactive: Int!
+
+  """Number of lead contacts"""
+  leads: Int!
+
+  """Total number of contacts"""
+  total: Int!
+}
+
 input CreateContactInput {
   company: String
   email: String
@@ -67,6 +81,17 @@ input CreateTaskInput {
   priority: TaskPriority
   status: TaskStatus
   title: String!
+}
+
+type DashboardStats {
+  """Contacts statistics"""
+  contacts: ContactsStats!
+
+  """Interactions statistics"""
+  interactions: InteractionsStats!
+
+  """Tasks statistics"""
+  tasks: TasksStats!
 }
 
 """
@@ -107,6 +132,17 @@ enum InteractionType {
   NOTE
 }
 
+type InteractionsStats {
+  """Number of interactions this month"""
+  thisMonth: Int!
+
+  """Number of interactions this week"""
+  thisWeek: Int!
+
+  """Total number of interactions"""
+  total: Int!
+}
+
 type MagicLinkResponse {
   expiresInMinutes: Int
   message: String!
@@ -130,6 +166,9 @@ type Mutation {
 type Query {
   contact(id: String!): Contact!
   contacts: [Contact!]!
+
+  """Get dashboard statistics for the current user"""
+  dashboardStats: DashboardStats!
 
   """Health check endpoint"""
   hello: String!
@@ -191,6 +230,20 @@ enum TaskStatus {
   DONE
   IN_PROGRESS
   TODO
+}
+
+type TasksStats {
+  """Number of completed tasks"""
+  completed: Int!
+
+  """Number of high priority tasks"""
+  highPriority: Int!
+
+  """Number of pending tasks (TODO + IN_PROGRESS)"""
+  pending: Int!
+
+  """Total number of tasks"""
+  total: Int!
 }
 
 input UpdateContactInput {

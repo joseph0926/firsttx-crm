@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { TasksModule } from './tasks/tasks.module';
 import { InteractionsModule } from './interactions/interactions.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { InteractionsModule } from './interactions/interactions.module';
     ContactsModule,
     TasksModule,
     InteractionsModule,
+    StatsModule,
   ],
   controllers: [],
   providers: [AppResolver],
