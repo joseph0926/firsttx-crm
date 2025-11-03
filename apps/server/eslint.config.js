@@ -4,7 +4,7 @@ import prettierConfig from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['node_modules/**', 'dist/**', '.turbo/**'],
+    ignores: ['node_modules/**', 'dist/**', '.turbo/**', 'eslint.config.js'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
