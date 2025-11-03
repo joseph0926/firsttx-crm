@@ -12,7 +12,7 @@
     "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
-    "@firsttx/local-first": "^0.4.3",
+    "@firsttx/local-first": "^0.5.1",
     "@firsttx/prepaint": "^0.4.2",
     "@firsttx/tx": "^0.4.0",
     "@graphql-typed-document-node/core": "^3.2.0",

@@ -58,6 +58,18 @@ export enum ContactStatus {
   Lost = 'LOST'
 }
 
+export type ContactsStats = {
+  __typename?: 'ContactsStats';
+  /** Number of active contacts */
+  active: Scalars['Int']['output'];
+  /** Number of inactive contacts */
+  inactive: Scalars['Int']['output'];
+  /** Number of lead contacts */
+  leads: Scalars['Int']['output'];
+  /** Total number of contacts */
+  total: Scalars['Int']['output'];
+};
+
 export type CreateContactInput = {
   company?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -85,6 +97,16 @@ export type CreateTaskInput = {
   priority?: InputMaybe<TaskPriority>;
   status?: InputMaybe<TaskStatus>;
   title: Scalars['String']['input'];
+};
+
+export type DashboardStats = {
+  __typename?: 'DashboardStats';
+  /** Contacts statistics */
+  contacts: ContactsStats;
+  /** Interactions statistics */
+  interactions: InteractionsStats;
+  /** Tasks statistics */
+  tasks: TasksStats;
 };
 
 export type Interaction = {
@@ -120,6 +142,16 @@ export enum InteractionType {
   Meeting = 'MEETING',
   Note = 'NOTE'
 }
+
+export type InteractionsStats = {
+  __typename?: 'InteractionsStats';
+  /** Number of interactions this month */
+  thisMonth: Scalars['Int']['output'];
+  /** Number of interactions this week */
+  thisWeek: Scalars['Int']['output'];
+  /** Total number of interactions */
+  total: Scalars['Int']['output'];
+};
 
 export type MagicLinkResponse = {
   __typename?: 'MagicLinkResponse';
@@ -205,6 +237,8 @@ export type Query = {
   __typename?: 'Query';
   contact: Contact;
   contacts: Array<Contact>;
+  /** Get dashboard statistics for the current user */
+  dashboardStats: DashboardStats;
   /** Health check endpoint */
   hello: Scalars['String']['output'];
   interaction: Interaction;
@@ -292,6 +326,18 @@ export enum TaskStatus {
   InProgress = 'IN_PROGRESS',
   Todo = 'TODO'
 }
+
+export type TasksStats = {
+  __typename?: 'TasksStats';
+  /** Number of completed tasks */
+  completed: Scalars['Int']['output'];
+  /** Number of high priority tasks */
+  highPriority: Scalars['Int']['output'];
+  /** Number of pending tasks (TODO + IN_PROGRESS) */
+  pending: Scalars['Int']['output'];
+  /** Total number of tasks */
+  total: Scalars['Int']['output'];
+};
 
 export type UpdateContactInput = {
   company?: InputMaybe<Scalars['String']['input']>;
@@ -409,6 +455,11 @@ export type GetContactQueryVariables = Exact<{
 
 export type GetContactQuery = { __typename?: 'Query', contact: { __typename?: 'Contact', id: string, name: string, email?: string | null, phone?: string | null, company?: string | null, position?: string | null, status: ContactStatus, priority: ContactPriority, tags: Array<string>, notes?: string | null, createdAt: any, updatedAt: any, lastContactedAt?: any | null } };
 
+export type GetDashboardStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetDashboardStatsQuery = { __typename?: 'Query', dashboardStats: { __typename?: 'DashboardStats', contacts: { __typename?: 'ContactsStats', total: number, active: number, leads: number, inactive: number }, tasks: { __typename?: 'TasksStats', total: number, pending: number, completed: number, highPriority: number }, interactions: { __typename?: 'InteractionsStats', total: number, thisWeek: number, thisMonth: number } } };
+
 export type UserCoreFragment = { __typename?: 'User', id: string, email: string, name?: string | null };
 
 export type UserTimestampsFragment = { __typename?: 'User', createdAt: any, updatedAt: any };
@@ -435,3 +486,4 @@ export const UpdateContactDocument = {"kind":"Document","definitions":[{"kind":"
 export const RemoveContactDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveContact"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeContact"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactCore"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactCore"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]} as unknown as DocumentNode<RemoveContactMutation, RemoveContactMutationVariables>;
 export const GetContactsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetContacts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"contacts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactListItem"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactCore"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactContactInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactStatus"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactListItem"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactCore"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactContactInfo"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactStatus"}},{"kind":"Field","name":{"kind":"Name","value":"lastContactedAt"}}]}}]} as unknown as DocumentNode<GetContactsQuery, GetContactsQueryVariables>;
 export const GetContactDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetContact"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"contact"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactDetail"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactCore"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactContactInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactBusinessInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"position"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactStatus"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactMetadata"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactTimestamps"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastContactedAt"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ContactDetail"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Contact"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactCore"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactContactInfo"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactBusinessInfo"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactStatus"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactMetadata"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"ContactTimestamps"}}]}}]} as unknown as DocumentNode<GetContactQuery, GetContactQueryVariables>;
+export const GetDashboardStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetDashboardStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"dashboardStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"contacts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"leads"}},{"kind":"Field","name":{"kind":"Name","value":"inactive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tasks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"pending"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"highPriority"}}]}},{"kind":"Field","name":{"kind":"Name","value":"interactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"thisWeek"}},{"kind":"Field","name":{"kind":"Name","value":"thisMonth"}}]}}]}}]}}]} as unknown as DocumentNode<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>;

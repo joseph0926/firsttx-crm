@@ -1,0 +1,21 @@
+query GetDashboardStats {
+  dashboardStats {
+    contacts {
+      total
+      active
+      leads
+      inactive
+    }
+    tasks {
+      total
+      pending
+      completed
+      highPriority
+    }
+    interactions {
+      total
+      thisWeek
+      thisMonth
+    }
+  }
+}

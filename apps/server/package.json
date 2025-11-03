@@ -2,6 +2,7 @@
   "name": "@firsttx-crm/server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "NestJS GraphQL server for FirstTx CRM",
   "scripts": {
     "dev": "nest start --watch",
