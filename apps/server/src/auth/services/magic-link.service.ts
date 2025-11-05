@@ -10,7 +10,9 @@ export class MagicLinkService {
 
   async createMagicLink(email: string): Promise<{ token: string }> {
     const token = this.generateToken();
-    const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRES_MINUTES * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + MAGIC_LINK_EXPIRES_MINUTES * 60 * 1000
+    );
 
     await this.prisma.magicLink.create({
       data: {
@@ -21,7 +23,7 @@ export class MagicLinkService {
     });
 
     // TODO: Replace with actual email service in production
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     console.log(`\n🔗 Magic Link for ${email}:`);
     console.log(`${frontendUrl}/auth/verify?token=${token}`);
     console.log(`Expires at: ${expiresAt.toLocaleString()}\n`);
