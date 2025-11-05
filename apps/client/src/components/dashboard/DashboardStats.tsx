@@ -13,14 +13,17 @@ export function StatsContent() {
 
     if (result.error) {
       const isAuthError = result.error.graphQLErrors.some(
-        (e) => e.extensions?.code === 'UNAUTHENTICATED' ||
-               e.message.includes('Unauthorized')
+        (e) =>
+          e.extensions?.code === 'UNAUTHENTICATED' ||
+          e.message.includes('Unauthorized')
       );
 
       if (isAuthError) {
         throw new Error('Authentication required');
       }
-      throw new Error(result.error.message || 'Failed to fetch dashboard stats');
+      throw new Error(
+        result.error.message || 'Failed to fetch dashboard stats'
+      );
     }
 
     if (!result.data?.dashboardStats) {
