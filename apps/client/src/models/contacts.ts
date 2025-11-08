@@ -1,9 +1,13 @@
 import { defineModel } from '@firsttx/local-first';
 import { z } from 'zod';
+import {
+  ContactStatus as GQLContactStatus,
+  ContactPriority as GQLContactPriority,
+} from '@/gql/graphql';
 
-const ContactStatusSchema = z.enum(['ACTIVE', 'INACTIVE', 'LEAD', 'LOST']);
+const ContactStatusSchema = z.nativeEnum(GQLContactStatus);
 
-const ContactPrioritySchema = z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']);
+const ContactPrioritySchema = z.nativeEnum(GQLContactPriority);
 
 const ContactSchema = z.object({
   id: z.string(),
