@@ -8,7 +8,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [{ fetching }, requestMagicLink] = useMutation(RequestMagicLinkDocument);
+  const [{ fetching }, requestMagicLink] = useMutation(
+    RequestMagicLinkDocument
+  );
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,84 +36,109 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <motion.div
-        layout
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      >
-        {!submitted ? (
-          <motion.div
-            layout="position"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <h1 className="text-2xl font-bold mb-6">Sign In</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">
-                  Name (optional)
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Your name"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={fetching}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {fetching ? 'Sending...' : 'Send Magic Link'}
-              </button>
-            </form>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="relative group w-full max-w-md"
+    >
+      <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-background/60 backdrop-blur-2xl p-8 shadow-xl shadow-primary/5 transition-all duration-500 hover:bg-background/80 hover:border-border/60">
+        <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {import.meta.env.DEV && (
-              <button
-                onClick={handleDevLogin}
-                className="w-full mt-4 bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300 text-sm"
+        <div className="relative z-10">
+          {!submitted ? (
+            <motion.div
+              layout="position"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <h1 className="text-2xl font-bold mb-6 text-foreground">
+                Sign In
+              </h1>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-2 text-foreground"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-border/40 bg-background/40 backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-foreground placeholder:text-muted-foreground"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium mb-2 text-foreground"
+                  >
+                    Name (optional)
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 border border-border/40 bg-background/40 backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-foreground placeholder:text-muted-foreground"
+                    placeholder="Your name"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={fetching}
+                  className="w-full mt-6 px-6 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {fetching ? 'Sending...' : 'Send Magic Link'}
+                </button>
+              </form>
+
+              {import.meta.env.DEV && (
+                <button
+                  onClick={handleDevLogin}
+                  className="w-full mt-4 px-6 py-2.5 bg-muted/60 backdrop-blur-sm text-muted-foreground rounded-full hover:bg-muted/80 transition-all duration-300 text-sm font-medium border border-border/30"
+                >
+                  Dev Login (Skip Magic Link)
+                </button>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              layout="position"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="text-center py-4"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                className="mb-6 text-primary text-6xl"
               >
-                Dev Login (Skip Magic Link)
-              </button>
-            )}
-          </motion.div>
-        ) : (
-          <motion.div
-            layout="position"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center"
-          >
-            <div className="mb-4 text-green-600 text-5xl">✓</div>
-            <h2 className="text-xl font-semibold mb-2">Magic link sent!</h2>
-            <p className="text-gray-600 mb-4">
-              Check your email at <strong>{email}</strong>
-            </p>
-            <p className="text-sm text-gray-500">
-              Click the link in the email to complete sign in
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
-    </div>
+                ✓
+              </motion.div>
+              <h2 className="text-2xl font-bold mb-3 text-foreground">
+                Magic link sent!
+              </h2>
+              <p className="text-muted-foreground mb-2">
+                Check your email at{' '}
+                <strong className="text-foreground">{email}</strong>
+              </p>
+              <p className="text-sm text-muted-foreground/80">
+                Click the link in the email to complete sign in
+              </p>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 }

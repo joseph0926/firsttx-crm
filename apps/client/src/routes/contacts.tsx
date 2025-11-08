@@ -10,25 +10,32 @@ export async function loader() {
 
 export default function ContactsPage() {
   return (
-    <div className="flex-1 space-y-8 p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Contacts</h1>
-        <p className="text-muted-foreground mt-2">
+    <div className="flex-1 space-y-8 p-8 bg-background/50 relative overflow-hidden">
+      <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+
+      <div className="relative">
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">
+          Contacts
+        </h1>
+        <p className="text-muted-foreground mt-2 text-lg">
           Manage your customer relationships and contacts.
         </p>
       </div>
-      <Suspense fallback={<ContactsSkeleton />}>
-        <ContactsList />
-      </Suspense>
+
+      <div className="relative">
+        <Suspense fallback={<ContactsSkeleton />}>
+          <ContactsList />
+        </Suspense>
+      </div>
     </div>
   );
 }
 
 function ContactsSkeleton() {
   return (
-    <div className="space-y-4">
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-[400px] w-full" />
+    <div className="space-y-6">
+      <Skeleton className="h-12 w-full rounded-2xl bg-background/60 backdrop-blur-xl border border-border/40" />
+      <Skeleton className="h-[500px] w-full rounded-3xl bg-background/60 backdrop-blur-xl border border-border/40" />
     </div>
   );
 }

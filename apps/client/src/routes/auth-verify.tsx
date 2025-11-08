@@ -42,38 +42,64 @@ export default function AuthVerifyPage() {
   }, [searchParams, navigate, verifyMagicLink, login]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center"
-      >
-        {verifying && !error ? (
-          <>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="relative group w-full max-w-md"
+    >
+      <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-background/60 backdrop-blur-2xl p-10 shadow-xl shadow-primary/5 transition-all duration-500">
+        <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        <div className="relative z-10 text-center">
+          {verifying && !error ? (
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"
-            />
-            <h1 className="text-xl font-semibold mb-2">Verifying...</h1>
-            <p className="text-gray-600">Please wait while we sign you in</p>
-          </>
-        ) : error ? (
-          <>
-            <div className="mb-4 text-red-600 text-5xl">✕</div>
-            <h2 className="text-xl font-semibold mb-2">Verification failed</h2>
-            <p className="text-gray-600 mb-4">
-              {error.message || 'The magic link is invalid or has expired'}
-            </p>
-            <button
-              onClick={() => navigate('/login')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              Back to Login
-            </button>
-          </>
-        ) : null}
-      </motion.div>
-    </div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-6"
+              />
+              <h1 className="text-2xl font-bold mb-3 text-foreground">
+                Verifying...
+              </h1>
+              <p className="text-muted-foreground">
+                Please wait while we sign you in
+              </p>
+            </motion.div>
+          ) : error ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                className="mb-6 text-destructive text-6xl"
+              >
+                ✕
+              </motion.div>
+              <h2 className="text-2xl font-bold mb-3 text-foreground">
+                Verification failed
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                {error.message || 'The magic link is invalid or has expired'}
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+              >
+                Back to Login
+              </button>
+            </motion.div>
+          ) : null}
+        </div>
+      </div>
+    </motion.div>
   );
 }

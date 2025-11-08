@@ -5,20 +5,26 @@ import AuthVerifyPage from './routes/auth-verify';
 import DashboardPage, { loader as dashboardLoader } from './routes/dashboard';
 import ContactsPage, { loader as contactsLoader } from './routes/contacts';
 import { AppLayout } from './components/layout/AppLayout';
+import { PublicLayout } from './components/layout/PublicLayout';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <RootPage />,
-    loader: rootLoader,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/auth/verify',
-    element: <AuthVerifyPage />,
+    element: <PublicLayout />,
+    children: [
+      {
+        path: '/',
+        element: <RootPage />,
+        loader: rootLoader,
+      },
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/auth/verify',
+        element: <AuthVerifyPage />,
+      },
+    ],
   },
   {
     element: <AppLayout />,

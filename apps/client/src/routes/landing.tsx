@@ -1,7 +1,6 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import {
-  FloatingOrbs,
   FeatureCard,
   ContactManagementVisual,
   SmartTrackingVisual,
@@ -10,13 +9,9 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <FloatingOrbs />
-
+    <>
       <nav className="relative z-10 px-6 py-6 max-w-7xl mx-auto flex justify-between items-center">
-        <div className="text-2xl font-bold text-primary">
-          FirstTX
-        </div>
+        <div className="text-2xl font-bold text-primary">FirstTX</div>
         <Link
           to="/login"
           className="px-6 py-2 bg-card/80 backdrop-blur-sm border border-border rounded-full hover:bg-card transition-colors text-sm font-medium text-foreground"
@@ -24,12 +19,11 @@ export default function LandingPage() {
           Sign In
         </Link>
       </nav>
-
       <main className="relative z-10 px-6 pt-20 pb-32 max-w-7xl mx-auto">
         <HeroSection />
         <FeaturesSection />
       </main>
-    </div>
+    </>
   );
 }
 
@@ -47,13 +41,9 @@ function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <span className="text-foreground">
-          Relationships that scale.
-        </span>
+        <span className="text-foreground">Relationships that scale.</span>
         <br />
-        <span className="text-primary">
-          CRM that doesn't get in the way.
-        </span>
+        <span className="text-primary">CRM that doesn't get in the way.</span>
       </motion.h1>
 
       <motion.p
@@ -62,8 +52,9 @@ function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Built for teams who value connections over complexity.
-        Track interactions, nurture relationships, and grow your business—without the bloat.
+        Built for teams who value connections over complexity. Track
+        interactions, nurture relationships, and grow your business—without the
+        bloat.
       </motion.p>
 
       <motion.div
