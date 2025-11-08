@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "db:gen": "prisma generate",
     "db:mig": "prisma migrate dev",
-    "db:stu": "prisma studio"
+    "db:stu": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
@@ -42,7 +43,8 @@
     "@nestjs/cli": "^11.0.10",
     "@types/cookie-parser": "^1.4.9",
     "@types/passport-jwt": "^4.0.1",
-    "prisma": "^6.17.1"
+    "prisma": "^6.17.1",
+    "tsx": "^4.20.6"
   },
   "engines": {
     "node": ">=22",
