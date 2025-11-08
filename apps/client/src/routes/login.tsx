@@ -1,16 +1,31 @@
 import { useState } from 'react';
+import { redirect } from 'react-router';
 import { motion } from 'motion/react';
 import { useMutation } from 'urql';
-import { RequestMagicLinkDocument } from '@/gql/graphql';
+import { useNavigate } from 'react-router';
+import { RequestMagicLinkDocument, DevLoginDocument } from '@/gql/graphql';
 import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { getAuth } from '@/lib/auth';
+
+export async function loader() {
+  const auth = await getAuth();
+  if (auth) {
+    throw redirect('/dashboard');
+  }
+  return null;
+}
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [{ fetching }, requestMagicLink] = useMutation(
     RequestMagicLinkDocument
   );
+  const [{ fetching: devLoginFetching }, devLogin] =
+    useMutation(DevLoginDocument);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,13 +41,19 @@ export default function LoginPage() {
   };
 
   const handleDevLogin = async () => {
-    await login('dev-token', {
-      id: 'dev-user-id',
-      email: 'dev@local',
-      name: 'Dev User',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+    const result = await devLogin({});
+
+    if (result.data?.devLogin) {
+      const { accessToken, user } = result.data.devLogin;
+      await login(accessToken, {
+        id: user.id,
+        email: user.email,
+        name: user.name ?? null,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      });
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   return (
@@ -91,22 +112,26 @@ export default function LoginPage() {
                     placeholder="Your name"
                   />
                 </div>
-                <button
+                <Button
                   type="submit"
                   disabled={fetching}
-                  className="w-full mt-6 px-6 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full mt-6 px-6 py-3 rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:hover:scale-100"
                 >
                   {fetching ? 'Sending...' : 'Send Magic Link'}
-                </button>
+                </Button>
               </form>
 
               {import.meta.env.DEV && (
-                <button
+                <Button
+                  variant="outline"
                   onClick={handleDevLogin}
-                  className="w-full mt-4 px-6 py-2.5 bg-muted/60 backdrop-blur-sm text-muted-foreground rounded-full hover:bg-muted/80 transition-all duration-300 text-sm font-medium border border-border/30"
+                  disabled={devLoginFetching}
+                  className="w-full mt-4 px-6 py-2.5 bg-muted/60 backdrop-blur-sm text-muted-foreground rounded-full hover:bg-muted/80 transition-all duration-300 text-sm font-medium border-border/30"
                 >
-                  Dev Login (Skip Magic Link)
-                </button>
+                  {devLoginFetching
+                    ? 'Logging in...'
+                    : 'Dev Login (Skip Magic Link)'}
+                </Button>
               )}
             </motion.div>
           ) : (

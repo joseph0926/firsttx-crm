@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, ForbiddenException } from '@nestjs/common';
 import { RequestMagicLinkInput } from './dto/request-magic-link.input';
 import { VerifyMagicLinkInput } from './dto/verify-magic-link.input';
 import { AuthResponse } from './dto/auth-response.dto';
@@ -66,5 +66,31 @@ export class AuthResolver {
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: User): Promise<User> {
     return user;
+  }
+
+  @Mutation(() => AuthResponse)
+  async devLogin(): Promise<AuthResponse> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Dev login only available in development');
+    }
+
+    const devEmail = 'dev@example.com';
+    const devName = 'Dev User';
+
+    let user = await this.usersService.findByEmail(devEmail);
+
+    if (!user) {
+      user = await this.usersService.create({
+        email: devEmail,
+        name: devName,
+      });
+    }
+
+    const accessToken = this.authService.generateToken(user);
+
+    return {
+      accessToken,
+      user,
+    };
   }
 }

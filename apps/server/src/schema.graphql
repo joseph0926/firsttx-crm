@@ -153,6 +153,7 @@ type Mutation {
   createContact(input: CreateContactInput!): Contact!
   createInteraction(input: CreateInteractionInput!): Interaction!
   createTask(input: CreateTaskInput!): Task!
+  devLogin: AuthResponse!
   removeContact(id: String!): Contact!
   removeInteraction(id: String!): Interaction!
   removeTask(id: String!): Task!

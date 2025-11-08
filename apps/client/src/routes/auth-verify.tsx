@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { redirect, useNavigate, useSearchParams } from 'react-router';
 import { motion } from 'motion/react';
 import { useMutation } from 'urql';
 import { VerifyMagicLinkDocument } from '@/gql/graphql';
 import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { getAuth } from '@/lib/auth';
+
+export async function loader() {
+  const auth = await getAuth();
+  if (auth) {
+    throw redirect('/dashboard');
+  }
+  return null;
+}
 
 export default function AuthVerifyPage() {
   const [searchParams] = useSearchParams();
@@ -90,12 +100,12 @@ export default function AuthVerifyPage() {
               <p className="text-muted-foreground mb-6">
                 {error.message || 'The magic link is invalid or has expired'}
               </p>
-              <button
+              <Button
                 onClick={() => navigate('/login')}
-                className="px-8 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                className="px-8 py-3 rounded-full font-semibold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
               >
                 Back to Login
-              </button>
+              </Button>
             </motion.div>
           ) : null}
         </div>

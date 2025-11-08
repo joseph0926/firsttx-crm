@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { useModel } from '@firsttx/local-first';
 import { Home, Users, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -23,6 +23,7 @@ const menuItems = [
 ] as const;
 
 export function Sidebar() {
+  const navigate = useNavigate();
   const [preferences] = useModel(UiPreferencesModel);
   const { user, logout } = useAuth();
   const isExpanded = preferences?.sidebarExpanded ?? true;
@@ -31,6 +32,11 @@ export function Sidebar() {
     UiPreferencesModel.patch((draft) => {
       draft.sidebarExpanded = !draft.sidebarExpanded;
     });
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -68,7 +74,7 @@ export function Sidebar() {
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="text-destructive">
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -88,7 +94,7 @@ export function Sidebar() {
                 }`
               }
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <item.icon className="h-5 w-5 shrink-0" />
               {isExpanded && (
                 <motion.span
                   initial={{ opacity: 0 }}

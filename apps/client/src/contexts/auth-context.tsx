@@ -7,7 +7,10 @@ type AuthContextValue = {
   auth: AuthData;
   user: Omit<UserDetailFragment, '__typename'> | null;
   isAuthenticated: boolean;
-  login: (token: string, user: Omit<UserDetailFragment, '__typename'>) => Promise<void>;
+  login: (
+    token: string,
+    user: Omit<UserDetailFragment, '__typename'>
+  ) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -16,7 +19,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth] = useModel(AuthModel);
 
-  const login = async (token: string, user: Omit<UserDetailFragment, '__typename'>) => {
+  const login = async (
+    token: string,
+    user: Omit<UserDetailFragment, '__typename'>
+  ) => {
     await AuthModel.replace({
       accessToken: token,
       user: {
@@ -39,9 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 

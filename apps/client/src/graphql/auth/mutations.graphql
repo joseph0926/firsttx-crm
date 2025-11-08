@@ -14,3 +14,12 @@ mutation VerifyMagicLink($input: VerifyMagicLinkInput!) {
     }
   }
 }
+
+mutation DevLogin {
+  devLogin {
+    accessToken
+    user {
+      ...UserDetail
+    }
+  }
+}
