@@ -17,9 +17,16 @@ FirstTX CRM provides essential customer relationship management features with a 
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **TypeScript 5.9** - Type safety
 
-### Backend & Data
-- **GraphQL** - API layer with urql client
-- **GraphQL Code Generator** - Type-safe GraphQL operations
+### Backend
+- **NestJS** - Node.js framework
+- **GraphQL** - API layer with Apollo Server
+- **Prisma** - Database ORM
+- **PostgreSQL** - Database
+- **JWT** - Authentication
+
+### Client Data Layer
+- **urql** - GraphQL client
+- **GraphQL Code Generator** - Type-safe operations
 - **Local-First Architecture** - Built with `@firsttx/local-first`
 
 ### Development
@@ -87,54 +94,156 @@ Built with a modular component architecture:
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- pnpm 8+
+- Node.js 22+
+- pnpm 10+
+- PostgreSQL 16+ (or Docker)
 
 ### Installation
 
+1. Clone the repository and install dependencies:
 ```bash
-# Install dependencies
 pnpm install
-
-# Start development server
-cd apps/client
-pnpm dev
 ```
 
-### Development
+2. Set up environment variables:
+```bash
+# Server
+cp apps/server/.env.example apps/server/.env
+# Edit apps/server/.env and set JWT_SECRET
+
+# Client
+cp apps/client/.env.example apps/client/.env
+```
+
+3. Start PostgreSQL database:
+```bash
+# Using Docker
+docker-compose up -d
+
+# Or use your local PostgreSQL instance
+```
+
+4. Run database migrations:
+```bash
+cd apps/server
+pnpm db:mig
+```
+
+5. Seed the database (optional):
+```bash
+pnpm db:seed
+```
+
+6. Start development servers:
+```bash
+# From root directory
+pnpm dev
+
+# Or start individually
+cd apps/server && pnpm dev  # Server on port 4000
+cd apps/client && pnpm dev  # Client on port 3000
+```
+
+### Development Commands
 
 ```bash
-# Run GraphQL codegen in watch mode
-pnpm codegen:watch
+# GraphQL
+cd apps/client
+pnpm codegen        # Generate GraphQL types
+pnpm codegen:watch  # Watch mode
 
-# Build for production
-pnpm build
+# Database
+cd apps/server
+pnpm db:gen         # Generate Prisma client
+pnpm db:mig         # Run migrations
+pnpm db:stu         # Open Prisma Studio
+pnpm db:seed        # Seed database
 
-# Lint code
-pnpm lint
+# Build & Lint
+pnpm build          # Build all packages
+pnpm lint           # Lint all packages
+pnpm typecheck      # Type check all packages
 ```
+
+### Environment Variables
+
+#### Server (`apps/server/.env`)
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret key for JWT tokens (generate with `openssl rand -base64 32`)
+- `JWT_EXPIRES_IN` - Token expiration time (e.g., `7d`)
+- `PORT` - Server port (default: 4000)
+- `FRONTEND_URL` - Client URL for CORS (default: `http://localhost:3000`)
+
+#### Client (`apps/client/.env`)
+- `VITE_API_URL` - GraphQL API endpoint (default: `http://localhost:4000`)
 
 ## Architecture Highlights
 
-### Component Organization
-Landing page components are separated into focused modules:
+### Monorepo Structure
+- Turborepo for task orchestration
+- pnpm workspaces for dependency management
+- Shared tooling configuration (ESLint, TypeScript, Prettier)
 
-- `types.ts` - TypeScript interfaces
-- `data.ts` - Mock data (easily replaceable)
-- Individual visual components
+### Frontend Optimization
+- Route-based code splitting with React Router 7 lazy loading
+- Vendor chunking for improved caching
+- Manual chunk splitting for libraries (React, UI components, GraphQL)
+- Initial bundle reduced by 51% (315KB → 161KB gzipped)
+
+### Authentication
+- Magic link authentication (passwordless)
+- JWT-based session management
+- Route guards with loader functions
+- Dev mode bypass for local development
+
+### Database Schema
+- User management with magic link authentication
+- Contact management with status and priority tracking
+- Task management with due dates and priorities
+- Interaction tracking (calls, emails, meetings, notes)
+
+### Component Organization
+- Shared UI components library (Radix UI primitives)
+- Feature-based organization (contacts, dashboard, tasks)
+- Type-safe GraphQL operations with code generation
 - Barrel exports for clean imports
 
-### Animation Strategy
-- Scroll-triggered animations with `whileInView`
-- Optimized viewport margins for performance
-- Spring physics for natural motion
-- Minimal delays for responsive feel
-
 ### Styling Approach
-- Utility-first with Tailwind CSS
+- Utility-first with Tailwind CSS 4
 - CSS custom properties for theming
 - Glassmorphism effects with backdrop-blur
 - Responsive breakpoints (sm, md, lg)
+
+## Docker Support
+
+The project includes Docker Compose configuration for PostgreSQL database.
+
+### Start Database
+```bash
+docker-compose up -d
+```
+
+### Stop Database
+```bash
+docker-compose down
+```
+
+### Reset Database
+```bash
+docker-compose down -v  # Remove volumes
+docker-compose up -d
+cd apps/server && pnpm db:mig
+```
+
+### Configuration
+The `docker-compose.yml` file includes:
+- PostgreSQL 16 image
+- Port mapping: `5432:5432`
+- Persistent data volume
+- Health checks
+- Default credentials: `postgres:postgres`
+
+For production deployment, update credentials in `docker-compose.yml` and corresponding `DATABASE_URL` in `.env`.
 
 ## License
 
