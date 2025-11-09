@@ -15,7 +15,7 @@ export async function loader() {
   return null;
 }
 
-export default function AuthVerifyPage() {
+export function Component() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login } = useAuth();

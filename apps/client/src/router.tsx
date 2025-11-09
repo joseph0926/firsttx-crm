@@ -1,9 +1,4 @@
 import { createBrowserRouter } from 'react-router';
-import RootPage, { loader as rootLoader } from './routes/root';
-import LoginPage, { loader as loginLoader } from './routes/login';
-import AuthVerifyPage, { loader as authVerifyLoader } from './routes/auth-verify';
-import DashboardPage, { loader as dashboardLoader } from './routes/dashboard';
-import ContactsPage, { loader as contactsLoader } from './routes/contacts';
 import { AppLayout } from './components/layout/AppLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
 
@@ -13,18 +8,15 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <RootPage />,
-        loader: rootLoader,
+        lazy: () => import('./routes/root'),
       },
       {
         path: '/login',
-        element: <LoginPage />,
-        loader: loginLoader,
+        lazy: () => import('./routes/login'),
       },
       {
         path: '/auth/verify',
-        element: <AuthVerifyPage />,
-        loader: authVerifyLoader,
+        lazy: () => import('./routes/auth-verify'),
       },
     ],
   },
@@ -33,13 +25,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/dashboard',
-        element: <DashboardPage />,
-        loader: dashboardLoader,
+        lazy: () => import('./routes/dashboard'),
       },
       {
         path: '/contacts',
-        element: <ContactsPage />,
-        loader: contactsLoader,
+        lazy: () => import('./routes/contacts'),
       },
     ],
   },

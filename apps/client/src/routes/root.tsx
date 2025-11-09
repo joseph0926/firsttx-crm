@@ -10,4 +10,5 @@ export async function loader() {
   return null;
 }
 
+export { LandingPage as Component };
 export default LandingPage;

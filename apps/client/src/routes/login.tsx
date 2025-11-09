@@ -16,7 +16,7 @@ export async function loader() {
   return null;
 }
 
-export default function LoginPage() {
+export function Component() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
