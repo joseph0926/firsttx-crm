@@ -1,6 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { InteractionType } from '@prisma/client';
-import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsDate, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 
 @InputType()
 export class CreateInteractionInput {
@@ -9,6 +9,7 @@ export class CreateInteractionInput {
   type!: InteractionType;
 
   @Field()
+  @IsDate()
   date!: Date;
 
   @Field({ nullable: true })

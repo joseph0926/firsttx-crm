@@ -11,12 +11,12 @@ import { Prisma } from '@prisma/client';
 export class TasksService {
   constructor(
     private prisma: PrismaService,
-    private contactsService: ContactsService,
+    private contactsService: ContactsService
   ) {}
 
   private async validateContactOwnership(
     contactId: string | undefined,
-    userId: string,
+    userId: string
   ) {
     if (contactId) {
       await this.contactsService.findOne(contactId, userId);

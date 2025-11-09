@@ -1,6 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
+  IsDate,
   IsEnum,
   IsOptional,
   IsString,
@@ -17,6 +18,7 @@ export class CreateTaskInput {
   title!: string;
 
   @Field()
+  @IsDate()
   dueDate!: Date;
 
   @Field({ nullable: true })

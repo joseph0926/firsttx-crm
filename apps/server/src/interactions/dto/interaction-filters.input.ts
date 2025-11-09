@@ -1,6 +1,6 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { InteractionType } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
 import { SortOrder } from '../../common/enums/sort-order.enum';
 
 export enum InteractionSortField {
@@ -27,10 +27,12 @@ export class InteractionFiltersInput {
 
   @Field({ nullable: true })
   @IsOptional()
+  @IsDate()
   dateFrom?: Date;
 
   @Field({ nullable: true })
   @IsOptional()
+  @IsDate()
   dateTo?: Date;
 
   @Field(() => InteractionSortField, { nullable: true })

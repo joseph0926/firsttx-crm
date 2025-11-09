@@ -1,0 +1,70 @@
+fragment TaskCore on Task {
+  id
+  title
+  status
+}
+
+fragment TaskDetails on Task {
+  description
+  priority
+  dueDate
+}
+
+fragment TaskTimestamps on Task {
+  createdAt
+  updatedAt
+}
+
+fragment TaskRelations on Task {
+  contact {
+    id
+    name
+  }
+}
+
+fragment TaskFull on Task {
+  ...TaskCore
+  ...TaskDetails
+  ...TaskTimestamps
+  ...TaskRelations
+}
+
+fragment TaskListItem on Task {
+  ...TaskCore
+  ...TaskDetails
+  dueDate
+  contact {
+    id
+    name
+  }
+}
+
+query GetTasks($filters: TaskFiltersInput) {
+  tasks(filters: $filters) {
+    ...TaskListItem
+  }
+}
+
+query GetTask($id: String!) {
+  task(id: $id) {
+    ...TaskFull
+  }
+}
+
+mutation CreateTask($input: CreateTaskInput!) {
+  createTask(input: $input) {
+    ...TaskFull
+  }
+}
+
+mutation UpdateTask($id: String!, $input: UpdateTaskInput!) {
+  updateTask(id: $id, input: $input) {
+    ...TaskFull
+  }
+}
+
+mutation RemoveTask($id: String!) {
+  removeTask(id: $id) {
+    ...TaskCore
+  }
+}

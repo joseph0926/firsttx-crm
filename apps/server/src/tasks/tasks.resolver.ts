@@ -17,7 +17,7 @@ export class TasksResolver {
   @Query(() => [Task])
   async tasks(
     @Args('filters', { nullable: true }) filters: TaskFiltersInput,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ) {
     return this.tasksService.findAll(user.id, filters);
   }
@@ -30,7 +30,7 @@ export class TasksResolver {
   @Mutation(() => Task)
   async createTask(
     @Args('input') input: CreateTaskInput,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ) {
     return this.tasksService.create(user.id, input);
   }
@@ -39,7 +39,7 @@ export class TasksResolver {
   async updateTask(
     @Args('id') id: string,
     @Args('input') input: UpdateTaskInput,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ) {
     return this.tasksService.update(id, user.id, input);
   }
