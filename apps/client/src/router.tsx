@@ -35,6 +35,10 @@ export const router = createBrowserRouter([
         path: '/tasks',
         lazy: () => import('./routes/tasks'),
       },
+      {
+        path: '/interactions',
+        lazy: () => import('./routes/interactions'),
+      },
     ],
   },
 ]);

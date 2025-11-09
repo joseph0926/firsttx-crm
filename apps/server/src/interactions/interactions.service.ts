@@ -22,6 +22,9 @@ export class InteractionsService {
         ...data,
         userId,
       },
+      include: {
+        contact: true,
+      },
     });
   }
 
@@ -49,6 +52,9 @@ export class InteractionsService {
     return this.prisma.interaction.findMany({
       where,
       orderBy,
+      include: {
+        contact: true,
+      },
     });
   }
 
@@ -57,6 +63,9 @@ export class InteractionsService {
       where: {
         id,
         userId,
+      },
+      include: {
+        contact: true,
       },
     });
 
@@ -77,6 +86,9 @@ export class InteractionsService {
     return this.prisma.interaction.update({
       where: { id },
       data,
+      include: {
+        contact: true,
+      },
     });
   }
 
@@ -85,6 +97,9 @@ export class InteractionsService {
 
     return this.prisma.interaction.delete({
       where: { id },
+      include: {
+        contact: true,
+      },
     });
   }
 }

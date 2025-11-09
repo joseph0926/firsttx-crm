@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { useModel } from '@firsttx/local-first';
-import { Home, Users, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Users, CheckSquare, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { UiPreferencesModel } from '@/models/ui-preferences';
 import { useAuth } from '@/contexts/auth-context';
 import { getInitials } from '@/lib/utils';
@@ -20,6 +20,7 @@ const menuItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
   { to: '/contacts', icon: Users, label: 'Contacts' },
   { to: '/tasks', icon: CheckSquare, label: 'Tasks' },
+  { to: '/interactions', icon: MessageSquare, label: 'Interactions' },
 ] as const;
 
 export function Sidebar() {

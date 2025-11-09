@@ -1,0 +1,65 @@
+fragment InteractionCore on Interaction {
+  id
+  type
+  date
+  notes
+}
+
+fragment InteractionTimestamps on Interaction {
+  createdAt
+  updatedAt
+}
+
+fragment InteractionRelations on Interaction {
+  contact {
+    id
+    name
+    email
+    company
+  }
+}
+
+fragment InteractionFull on Interaction {
+  ...InteractionCore
+  ...InteractionTimestamps
+  ...InteractionRelations
+}
+
+fragment InteractionListItem on Interaction {
+  ...InteractionCore
+  contact {
+    id
+    name
+    company
+  }
+}
+
+query GetInteractions($filters: InteractionFiltersInput) {
+  interactions(filters: $filters) {
+    ...InteractionListItem
+  }
+}
+
+query GetInteraction($id: String!) {
+  interaction(id: $id) {
+    ...InteractionFull
+  }
+}
+
+mutation CreateInteraction($input: CreateInteractionInput!) {
+  createInteraction(input: $input) {
+    ...InteractionFull
+  }
+}
+
+mutation UpdateInteraction($id: String!, $input: UpdateInteractionInput!) {
+  updateInteraction(id: $id, input: $input) {
+    ...InteractionFull
+  }
+}
+
+mutation RemoveInteraction($id: String!) {
+  removeInteraction(id: $id) {
+    ...InteractionCore
+  }
+}

@@ -32,6 +32,7 @@ fragment ContactTimestamps on Contact {
 fragment ContactListItem on Contact {
   ...ContactCore
   ...ContactContactInfo
+  ...ContactBusinessInfo
   ...ContactStatus
   lastContactedAt
 }
