@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
 import { useTx } from '@firsttx/tx';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +20,7 @@ import {
 import { ContactsModel } from '@/models/contacts';
 import type { Contact } from '@/models/contacts';
 import { toast } from 'sonner';
+import { DialogWrapper } from '../shared/DialogWrapper';
 
 interface EditContactDialogProps {
   contact: Contact;
@@ -149,125 +143,123 @@ export function EditContactDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Edit Contact</DialogTitle>
-          <DialogDescription>
-            Update contact information. Changes will be saved immediately.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+    <DialogWrapper
+      type="edit"
+      entity="contact"
+      desc="Update contact information. Changes will be saved immediately."
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="grid gap-6 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="edit-name">
+              Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="edit-name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder="John Doe"
+              required
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit-name">
-                Name <span className="text-destructive">*</span>
-              </Label>
+              <Label htmlFor="edit-email">Email</Label>
               <Input
-                id="edit-name"
-                value={formData.name}
+                id="edit-email"
+                type="email"
+                value={formData.email}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, email: e.target.value })
                 }
-                placeholder="John Doe"
-                required
+                placeholder="john@example.com"
                 disabled={isPending}
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-email">Email</Label>
-                <Input
-                  id="edit-email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="john@example.com"
-                  disabled={isPending}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-phone">Phone</Label>
-                <Input
-                  id="edit-phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  placeholder="+1-555-0100"
-                  disabled={isPending}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      status: value as typeof formData.status,
-                    })
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger id="edit-status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ContactStatus.Lead}>Lead</SelectItem>
-                    <SelectItem value={ContactStatus.Active}>Active</SelectItem>
-                    <SelectItem value={ContactStatus.Inactive}>Inactive</SelectItem>
-                    <SelectItem value={ContactStatus.Lost}>Lost</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-priority">Priority</Label>
-                <Select
-                  value={formData.priority}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      priority: value as typeof formData.priority,
-                    })
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger id="edit-priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ContactPriority.Low}>Low</SelectItem>
-                    <SelectItem value={ContactPriority.Medium}>Medium</SelectItem>
-                    <SelectItem value={ContactPriority.High}>High</SelectItem>
-                    <SelectItem value={ContactPriority.Urgent}>Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <Input
+                id="edit-phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="+1-555-0100"
+                disabled={isPending}
+              />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    status: value as typeof formData.status,
+                  })
+                }
+                disabled={isPending}
+              >
+                <SelectTrigger id="edit-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ContactStatus.Lead}>Lead</SelectItem>
+                  <SelectItem value={ContactStatus.Active}>Active</SelectItem>
+                  <SelectItem value={ContactStatus.Inactive}>
+                    Inactive
+                  </SelectItem>
+                  <SelectItem value={ContactStatus.Lost}>Lost</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-priority">Priority</Label>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    priority: value as typeof formData.priority,
+                  })
+                }
+                disabled={isPending}
+              >
+                <SelectTrigger id="edit-priority">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ContactPriority.Low}>Low</SelectItem>
+                  <SelectItem value={ContactPriority.Medium}>Medium</SelectItem>
+                  <SelectItem value={ContactPriority.High}>High</SelectItem>
+                  <SelectItem value={ContactPriority.Urgent}>Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogWrapper>
   );
 }

@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
 import { useTx } from '@firsttx/tx';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +22,7 @@ import {
 import { TasksModel } from '@/models/tasks';
 import type { Task } from '@/models/tasks';
 import { toast } from 'sonner';
+import { DialogWrapper } from '../shared/DialogWrapper';
 
 interface EditTaskDialogProps {
   task: Task;
@@ -179,151 +173,149 @@ export function EditTaskDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Task</DialogTitle>
-          <DialogDescription>
-            Update the task details below.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+    <DialogWrapper
+      type="edit"
+      entity="task"
+      desc="Update the task details below."
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="grid gap-6 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              placeholder="Follow up with client"
+              required
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Additional details about this task..."
+              rows={3}
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">
-                Title <span className="text-destructive">*</span>
+              <Label htmlFor="dueDate">
+                Due Date <span className="text-destructive">*</span>
               </Label>
               <Input
-                id="title"
-                value={formData.title}
+                id="dueDate"
+                type="date"
+                value={formData.dueDate}
                 onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
+                  setFormData({ ...formData, dueDate: e.target.value })
                 }
-                placeholder="Follow up with client"
                 required
                 disabled={isPending}
               />
             </div>
-
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+              <Label htmlFor="contact">Contact (Optional)</Label>
+              <Select
+                value={formData.contactId || 'none'}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    contactId: value === 'none' ? '' : value,
+                  })
                 }
-                placeholder="Additional details about this task..."
-                rows={3}
                 disabled={isPending}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="dueDate">
-                  Due Date <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="dueDate"
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dueDate: e.target.value })
-                  }
-                  required
-                  disabled={isPending}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact">Contact (Optional)</Label>
-                <Select
-                  value={formData.contactId || 'none'}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, contactId: value === 'none' ? '' : value })
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger id="contact">
-                    <SelectValue placeholder="Select contact" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    {contacts.map((contact) => (
-                      <SelectItem key={contact.id} value={contact.id}>
-                        {contact.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      status: value as typeof formData.status,
-                    })
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={TaskStatus.Todo}>To Do</SelectItem>
-                    <SelectItem value={TaskStatus.InProgress}>
-                      In Progress
+              >
+                <SelectTrigger id="contact">
+                  <SelectValue placeholder="Select contact" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {contacts.map((contact) => (
+                    <SelectItem key={contact.id} value={contact.id}>
+                      {contact.name}
                     </SelectItem>
-                    <SelectItem value={TaskStatus.Done}>Done</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Select
-                  value={formData.priority}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      priority: value as typeof formData.priority,
-                    })
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger id="priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={TaskPriority.Low}>Low</SelectItem>
-                    <SelectItem value={TaskPriority.Medium}>Medium</SelectItem>
-                    <SelectItem value={TaskPriority.High}>High</SelectItem>
-                    <SelectItem value={TaskPriority.Urgent}>Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Updating...' : 'Update Task'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    status: value as typeof formData.status,
+                  })
+                }
+                disabled={isPending}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TaskStatus.Todo}>To Do</SelectItem>
+                  <SelectItem value={TaskStatus.InProgress}>
+                    In Progress
+                  </SelectItem>
+                  <SelectItem value={TaskStatus.Done}>Done</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    priority: value as typeof formData.priority,
+                  })
+                }
+                disabled={isPending}
+              >
+                <SelectTrigger id="priority">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TaskPriority.Low}>Low</SelectItem>
+                  <SelectItem value={TaskPriority.Medium}>Medium</SelectItem>
+                  <SelectItem value={TaskPriority.High}>High</SelectItem>
+                  <SelectItem value={TaskPriority.Urgent}>Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Updating...' : 'Update Task'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogWrapper>
   );
 }

@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
 import { useTx } from '@firsttx/tx';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +21,7 @@ import {
 import { InteractionsModel } from '@/models/interactions';
 import type { Interaction } from '@/models/interactions';
 import { toast } from 'sonner';
+import { DialogWrapper } from '../shared/DialogWrapper';
 
 interface EditInteractionDialogProps {
   interaction: Interaction;
@@ -175,132 +169,127 @@ export function EditInteractionDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Interaction</DialogTitle>
-          <DialogDescription>
-            Update the details of this interaction.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+    <DialogWrapper
+      type="edit"
+      entity="interaction"
+      desc="Update the details of this interaction."
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="grid gap-6 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="edit-type">
+              Type <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.type}
+              onValueChange={(value) =>
+                setFormData({
+                  ...formData,
+                  type: value as typeof formData.type,
+                })
+              }
+              disabled={isPending}
+            >
+              <SelectTrigger id="edit-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={InteractionType.Call}>Call</SelectItem>
+                <SelectItem value={InteractionType.Email}>Email</SelectItem>
+                <SelectItem value={InteractionType.Meeting}>Meeting</SelectItem>
+                <SelectItem value={InteractionType.Note}>Note</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="edit-contact">
+              Contact <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.contactId}
+              onValueChange={(value) =>
+                setFormData({
+                  ...formData,
+                  contactId: value,
+                })
+              }
+              disabled={isPending}
+            >
+              <SelectTrigger id="edit-contact">
+                <SelectValue placeholder="Select contact" />
+              </SelectTrigger>
+              <SelectContent>
+                {contacts.map((contact) => (
+                  <SelectItem key={contact.id} value={contact.id}>
+                    {contact.name}
+                    {contact.company && ` (${contact.company})`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit-type">
-                Type <span className="text-destructive">*</span>
+              <Label htmlFor="edit-date">
+                Date <span className="text-destructive">*</span>
               </Label>
-              <Select
-                value={formData.type}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    type: value as typeof formData.type,
-                  })
-                }
-                disabled={isPending}
-              >
-                <SelectTrigger id="edit-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={InteractionType.Call}>Call</SelectItem>
-                  <SelectItem value={InteractionType.Email}>Email</SelectItem>
-                  <SelectItem value={InteractionType.Meeting}>Meeting</SelectItem>
-                  <SelectItem value={InteractionType.Note}>Note</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="edit-contact">
-                Contact <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.contactId}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    contactId: value,
-                  })
-                }
-                disabled={isPending}
-              >
-                <SelectTrigger id="edit-contact">
-                  <SelectValue placeholder="Select contact" />
-                </SelectTrigger>
-                <SelectContent>
-                  {contacts.map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.name}
-                      {contact.company && ` (${contact.company})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-date">
-                  Date <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="edit-date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                  required
-                  disabled={isPending}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-time">
-                  Time <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="edit-time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) =>
-                    setFormData({ ...formData, time: e.target.value })
-                  }
-                  required
-                  disabled={isPending}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="edit-notes">Notes</Label>
-              <Textarea
-                id="edit-notes"
-                value={formData.notes}
+              <Input
+                id="edit-date"
+                type="date"
+                value={formData.date}
                 onChange={(e) =>
-                  setFormData({ ...formData, notes: e.target.value })
+                  setFormData({ ...formData, date: e.target.value })
                 }
-                placeholder="Add notes about this interaction..."
-                rows={4}
+                required
+                disabled={isPending}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-time">
+                Time <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-time"
+                type="time"
+                value={formData.time}
+                onChange={(e) =>
+                  setFormData({ ...formData, time: e.target.value })
+                }
+                required
                 disabled={isPending}
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
+          <div className="grid gap-2">
+            <Label htmlFor="edit-notes">Notes</Label>
+            <Textarea
+              id="edit-notes"
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              placeholder="Add notes about this interaction..."
+              rows={4}
               disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Updating...' : 'Update Interaction'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Updating...' : 'Update Interaction'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogWrapper>
   );
 }
