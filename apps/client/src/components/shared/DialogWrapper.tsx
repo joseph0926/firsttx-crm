@@ -6,7 +6,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,8 +16,8 @@ type DialogWrapperProps = {
   entity: EntityType;
   children: React.ReactNode;
   desc: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   contentClassName?: string;
   triggerButton?: React.ReactNode;
 };
@@ -34,15 +33,11 @@ export const DialogWrapper = ({
   entity,
   children,
   desc,
-  open: controlledOpen,
+  open,
   onOpenChange,
   contentClassName,
   triggerButton,
 }: DialogWrapperProps) => {
-  const [internalOpen, setInternalOpen] = useState(false);
-
-  const open = controlledOpen ?? internalOpen;
-  const setOpen = onOpenChange ?? setInternalOpen;
   const title = type === 'create' ? 'Create New' : 'Edit';
   const defaultTriggerButton = (
     <Button className="rounded-full bg-primary hover:bg-primary/90">
@@ -52,7 +47,7 @@ export const DialogWrapper = ({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       {type === 'create' ? (
         <DialogTrigger asChild>
           {triggerButton ?? defaultTriggerButton}
