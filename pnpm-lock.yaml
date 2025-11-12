@@ -51,8 +51,8 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2(esbuild@0.25.11)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       '@firsttx/tx':
-        specifier: ^0.4.0
-        version: 0.4.0(react@19.2.0)
+        specifier: ^0.5.1
+        version: 0.5.1(react@19.2.0)
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.11.0)
@@ -738,8 +738,8 @@ packages:
       vite:
         optional: true
 
-  '@firsttx/tx@0.4.0':
-    resolution: {integrity: sha512-TwGttMdSLU/6sKPnSTUgsFkVIFTUARxMF0zDOFkule/ziTmgdcCpwyCFC8MJX40QPLZWoObO0g4n2lu/v3Sfow==}
+  '@firsttx/tx@0.5.1':
+    resolution: {integrity: sha512-61x3mXwesWUIag53pWG/5y5I5QuUwM63kjxenmQ2JpoGI4OuNfpdQy3GbfeyYxYRZ1//youiz2xrOmx60T4mYQ==}
     engines: {node: '>=22'}
     peerDependencies:
       react: ^18.2.0 || ^19.2.0
@@ -5579,7 +5579,7 @@ snapshots:
       esbuild: 0.25.11
       vite: 7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
 
-  '@firsttx/tx@0.4.0(react@19.2.0)':
+  '@firsttx/tx@0.5.1(react@19.2.0)':
     dependencies:
       react: 19.2.0
 

@@ -1,5 +1,5 @@
 import type { Model } from '@firsttx/local-first';
-import { useTx } from '@firsttx/tx';
+import { useTx, RETRY_PRESETS } from '@firsttx/tx';
 import { toast } from 'sonner';
 import { useClient, type TypedDocumentNode } from 'urql';
 
@@ -29,9 +29,10 @@ export const useCreateEntity = <
 ) => {
   const client = useClient();
 
-  return useTx<TInput, TMutationData>({
+  return useTx<TInput, TMutationData, string>({
     optimistic: async (input) => {
       const tempEntity = config.buildTempEntity(input);
+      const tempId = tempEntity.id;
 
       await config.model.patch((draft) => {
         if (config.addToTop) {
@@ -40,10 +41,12 @@ export const useCreateEntity = <
           draft.push(tempEntity);
         }
       });
+
+      return tempId;
     },
-    rollback: async () => {
+    rollback: async (_input, tempId) => {
       await config.model.patch((draft) => {
-        const index = draft.findIndex((item) => item.id.startsWith('temp-'));
+        const index = draft.findIndex((item) => item.id === tempId);
         if (index !== -1) {
           draft.splice(index, 1);
         }
@@ -66,13 +69,11 @@ export const useCreateEntity = <
 
       return result.data;
     },
-    onSuccess: async (data) => {
+    onSuccess: async (data, _input, tempId) => {
       const realEntity = config.extractResult(data);
 
       await config.model.patch((draft) => {
-        const tempIndex = draft.findIndex((item) =>
-          item.id.startsWith('temp-')
-        );
+        const tempIndex = draft.findIndex((item) => item.id === tempId);
         if (tempIndex !== -1) {
           draft[tempIndex] = realEntity;
         }
@@ -87,6 +88,6 @@ export const useCreateEntity = <
       console.error(error);
     },
     transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+    retry: RETRY_PRESETS.default,
   });
 };
