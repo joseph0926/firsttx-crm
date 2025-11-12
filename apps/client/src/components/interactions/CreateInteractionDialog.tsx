@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +16,14 @@ import {
   InteractionType,
   CreateInteractionDocument,
   GetContactsDocument,
+  type CreateInteractionMutation,
+  type CreateInteractionInput as GQLCreateInteractionInput,
 } from '@/gql/graphql';
 import { InteractionsModel } from '@/models/interactions';
 import type { Interaction } from '@/models/interactions';
 import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useCreateEntity } from '@/hooks/useCreateEntity';
 
 interface CreateInteractionDialogProps {
   onSuccess?: () => void;
@@ -75,53 +77,34 @@ export function CreateInteractionDialog({
     }
   }, [open, client]);
 
-  const { mutate, isPending } = useTx<CreateInteractionInput>({
-    optimistic: async (input) => {
-      const tempInteraction: Interaction = {
-        id: `temp-${Date.now()}`,
-        type: input.type,
-        date: `${input.date}T${input.time}:00`,
-        notes: input.notes || null,
-        contact: contacts.find((c) => c.id === input.contactId) || {
-          id: input.contactId,
-          name: 'Loading...',
-        },
-      };
-
-      await InteractionsModel.patch((draft) => {
-        draft.unshift(tempInteraction);
-      });
-    },
-    rollback: async () => {
-      await InteractionsModel.patch((draft) => {
-        const index = draft.findIndex((i) => i.id.startsWith('temp-'));
-        if (index !== -1) {
-          draft.splice(index, 1);
-        }
-      });
-    },
-    request: async (input) => {
-      const mutationInput = {
-        type: input.type,
-        date: new Date(`${input.date}T${input.time}:00`),
-        notes: input.notes || undefined,
-        contactId: input.contactId,
-      };
-
-      const result = await client.mutation(CreateInteractionDocument, {
-        input: mutationInput,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to create interaction');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useCreateEntity<
+    CreateInteractionInput,
+    Interaction,
+    CreateInteractionMutation,
+    GQLCreateInteractionInput
+  >({
+    model: InteractionsModel,
+    document: CreateInteractionDocument,
+    entityName: 'interaction',
+    buildTempEntity: (input) => ({
+      id: `temp-${Date.now()}`,
+      type: input.type,
+      date: `${input.date}T${input.time}:00`,
+      notes: input.notes || null,
+      contact: contacts.find((c) => c.id === input.contactId) || {
+        id: input.contactId,
+        name: 'Loading...',
+      },
+    }),
+    transformInput: (input) => ({
+      type: input.type,
+      date: new Date(`${input.date}T${input.time}:00`),
+      notes: input.notes || undefined,
+      contactId: input.contactId,
+    }),
+    extractResult: (data) => data.createInteraction,
+    addToTop: true,
     onSuccess: () => {
-      toast.success('Interaction created successfully');
       setOpen(false);
       const now = new Date();
       setFormData({
@@ -132,10 +115,6 @@ export function CreateInteractionDialog({
         contactId: '',
       });
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to create interaction');
-      console.error(error);
     },
   });
 

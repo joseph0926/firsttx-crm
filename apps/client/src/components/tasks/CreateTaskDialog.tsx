@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,11 +17,14 @@ import {
   TaskStatus,
   CreateTaskDocument,
   GetContactsDocument,
+  type CreateTaskMutation,
+  type CreateTaskInput as GQLCreateTaskInput,
 } from '@/gql/graphql';
 import { TasksModel } from '@/models/tasks';
 import type { Task } from '@/models/tasks';
 import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useCreateEntity } from '@/hooks/useCreateEntity';
 
 interface CreateTaskDialogProps {
   onSuccess?: () => void;
@@ -70,56 +72,37 @@ export function CreateTaskDialog({ onSuccess }: CreateTaskDialogProps) {
     }
   }, [open, client]);
 
-  const { mutate, isPending } = useTx<CreateTaskInput>({
-    optimistic: async (input) => {
-      const tempTask: Task = {
-        id: `temp-${Date.now()}`,
-        title: input.title,
-        status: input.status,
-        priority: input.priority,
-        dueDate: input.dueDate,
-        description: input.description || null,
-        contact: input.contactId
-          ? contacts.find((c) => c.id === input.contactId) || null
-          : null,
-      };
-
-      await TasksModel.patch((draft) => {
-        draft.push(tempTask);
-      });
-    },
-    rollback: async () => {
-      await TasksModel.patch((draft) => {
-        const index = draft.findIndex((t) => t.id.startsWith('temp-'));
-        if (index !== -1) {
-          draft.splice(index, 1);
-        }
-      });
-    },
-    request: async (input) => {
-      const mutationInput = {
-        title: input.title,
-        description: input.description || undefined,
-        dueDate: new Date(input.dueDate),
-        priority: input.priority,
-        status: input.status,
-        contactId: input.contactId || undefined,
-      };
-
-      const result = await client.mutation(CreateTaskDocument, {
-        input: mutationInput,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to create task');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useCreateEntity<
+    CreateTaskInput,
+    Task,
+    CreateTaskMutation,
+    GQLCreateTaskInput
+  >({
+    model: TasksModel,
+    document: CreateTaskDocument,
+    entityName: 'task',
+    buildTempEntity: (input) => ({
+      id: `temp-${Date.now()}`,
+      title: input.title,
+      status: input.status,
+      priority: input.priority,
+      dueDate: input.dueDate,
+      description: input.description || null,
+      contact: input.contactId
+        ? contacts.find((c) => c.id === input.contactId) || null
+        : null,
+    }),
+    transformInput: (input) => ({
+      title: input.title,
+      description: input.description || undefined,
+      dueDate: new Date(input.dueDate),
+      priority: input.priority,
+      status: input.status,
+      contactId: input.contactId || undefined,
+    }),
+    extractResult: (data) => data.createTask,
+    addToTop: false,
     onSuccess: () => {
-      toast.success('Task created successfully');
       setOpen(false);
       setFormData({
         title: '',
@@ -130,10 +113,6 @@ export function CreateTaskDialog({ onSuccess }: CreateTaskDialogProps) {
         contactId: '',
       });
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to create task');
-      console.error(error);
     },
   });
 

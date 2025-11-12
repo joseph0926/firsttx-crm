@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +15,14 @@ import {
   ContactPriority,
   ContactStatus,
   CreateContactDocument,
+  type CreateContactMutation,
+  type CreateContactInput as GQLCreateContactInput,
 } from '@/gql/graphql';
 import { ContactsModel } from '@/models/contacts';
 import type { Contact } from '@/models/contacts';
-import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useCreateEntity } from '@/hooks/useCreateEntity';
+import { toast } from 'sonner';
 
 interface CreateContactDialogProps {
   onSuccess?: () => void;
@@ -41,7 +42,6 @@ interface CreateContactInput {
 
 export function CreateContactDialog({ onSuccess }: CreateContactDialogProps) {
   const [open, setOpen] = useState(false);
-  const client = useClient();
 
   const [formData, setFormData] = useState<CreateContactInput>({
     name: '',
@@ -57,55 +57,38 @@ export function CreateContactDialog({ onSuccess }: CreateContactDialogProps) {
 
   const [tagInput, setTagInput] = useState('');
 
-  const { mutate, isPending } = useTx<CreateContactInput>({
-    optimistic: async (input) => {
-      const tempContact: Contact = {
-        id: `temp-${Date.now()}`,
-        name: input.name,
-        email: input.email || null,
-        phone: input.phone || null,
-        status: input.status,
-        priority: input.priority,
-        lastContactedAt: null,
-      };
-
-      await ContactsModel.patch((draft) => {
-        draft.push(tempContact);
-      });
-    },
-    rollback: async () => {
-      await ContactsModel.patch((draft) => {
-        const index = draft.findIndex((c) => c.id.startsWith('temp-'));
-        if (index !== -1) {
-          draft.splice(index, 1);
-        }
-      });
-    },
-    request: async (input) => {
-      const result = await client.mutation(CreateContactDocument, {
-        input: {
-          name: input.name,
-          email: input.email || undefined,
-          phone: input.phone || undefined,
-          company: input.company || undefined,
-          position: input.position || undefined,
-          notes: input.notes || undefined,
-          status: input.status,
-          priority: input.priority,
-          tags: input.tags,
-        },
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to create contact');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useCreateEntity<
+    CreateContactInput,
+    Contact,
+    CreateContactMutation,
+    GQLCreateContactInput
+  >({
+    model: ContactsModel,
+    document: CreateContactDocument,
+    entityName: 'contact',
+    buildTempEntity: (input) => ({
+      id: `temp-${Date.now()}`,
+      name: input.name,
+      email: input.email || null,
+      phone: input.phone || null,
+      status: input.status,
+      priority: input.priority,
+      lastContactedAt: null,
+    }),
+    transformInput: (input) => ({
+      name: input.name,
+      email: input.email || undefined,
+      phone: input.phone || undefined,
+      company: input.company || undefined,
+      position: input.position || undefined,
+      notes: input.notes || undefined,
+      status: input.status,
+      priority: input.priority,
+      tags: input.tags,
+    }),
+    extractResult: (data) => data.createContact,
+    addToTop: false,
     onSuccess: () => {
-      toast.success('Contact created successfully');
       setOpen(false);
       setFormData({
         name: '',
@@ -120,10 +103,6 @@ export function CreateContactDialog({ onSuccess }: CreateContactDialogProps) {
       });
       setTagInput('');
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to create contact');
-      console.error(error);
     },
   });
 
