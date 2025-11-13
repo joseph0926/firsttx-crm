@@ -1322,7 +1322,6 @@ async function main() {
 
     {
       contactId: contacts[19].id,
-      type: 'DONE' as const,
       title: '파트너십 킥오프 미팅 준비',
       description: 'VC 파트너십 첫 미팅 자료 준비.',
       status: 'DONE' as const,

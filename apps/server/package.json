@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "db:gen": "prisma generate",
     "db:mig": "prisma migrate dev",
+    "db:re": "prisma migrate reset",
     "db:stu": "prisma studio",
     "db:seed": "tsx prisma/seed.ts"
   },
