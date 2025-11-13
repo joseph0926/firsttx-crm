@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +16,13 @@ import {
   UpdateInteractionDocument,
   InteractionType,
   GetContactsDocument,
+  type UpdateInteractionMutation,
 } from '@/gql/graphql';
 import { InteractionsModel } from '@/models/interactions';
 import type { Interaction } from '@/models/interactions';
 import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useEditEntity } from '@/hooks/useEditEntity';
 
 interface EditInteractionDialogProps {
   interaction: Interaction;
@@ -63,8 +64,6 @@ export function EditInteractionDialog({
     contactId: interaction.contact.id,
   });
 
-  const [previousData, setPreviousData] = useState<Interaction | null>(null);
-
   useEffect(() => {
     if (open) {
       const dateTime = new Date(interaction.date);
@@ -92,63 +91,38 @@ export function EditInteractionDialog({
     }
   }, [open, interaction, client]);
 
-  const { mutate, isPending } = useTx<UpdateInteractionInput>({
-    optimistic: async (input) => {
-      await InteractionsModel.patch((draft) => {
-        const index = draft.findIndex((i) => i.id === input.id);
-        if (index !== -1) {
-          setPreviousData({ ...draft[index] });
-          draft[index] = {
-            ...draft[index],
-            type: input.type,
-            date: `${input.date}T${input.time}:00`,
-            notes: input.notes || null,
-            contact:
-              contacts.find((c) => c.id === input.contactId) ||
-              draft[index].contact,
-          };
-        }
-      });
-    },
-    rollback: async () => {
-      if (previousData) {
-        await InteractionsModel.patch((draft) => {
-          const index = draft.findIndex((i) => i.id === previousData.id);
-          if (index !== -1) {
-            draft[index] = previousData;
-          }
-        });
-        setPreviousData(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(UpdateInteractionDocument, {
-        id: input.id,
-        input: {
-          type: input.type,
-          date: new Date(`${input.date}T${input.time}:00`),
-          notes: input.notes || undefined,
-          contactId: input.contactId,
-        },
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to update interaction');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useEditEntity<
+    UpdateInteractionInput,
+    Interaction,
+    UpdateInteractionMutation,
+    {
+      type: Interaction['type'];
+      date: Date;
+      notes?: string;
+      contactId: string;
+    }
+  >({
+    model: InteractionsModel,
+    document: UpdateInteractionDocument,
+    entityName: 'interaction',
+    transformInput: (input) => ({
+      type: input.type,
+      date: new Date(`${input.date}T${input.time}:00`),
+      notes: input.notes || undefined,
+      contactId: input.contactId,
+    }),
+    extractResult: (data) => data.updateInteraction,
+    applyOptimisticUpdate: (entity, input) => ({
+      ...entity,
+      type: input.type,
+      date: `${input.date}T${input.time}:00`,
+      notes: input.notes || null,
+      contact:
+        contacts.find((c) => c.id === input.contactId) || entity.contact,
+    }),
     onSuccess: () => {
-      toast.success('Interaction updated successfully');
       onOpenChange(false);
-      setPreviousData(null);
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update interaction');
-      console.error(error);
     },
   });
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,11 +17,13 @@ import {
   TaskStatus,
   TaskPriority,
   GetContactsDocument,
+  type UpdateTaskMutation,
 } from '@/gql/graphql';
 import { TasksModel } from '@/models/tasks';
 import type { Task } from '@/models/tasks';
 import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useEditEntity } from '@/hooks/useEditEntity';
 
 interface EditTaskDialogProps {
   task: Task;
@@ -64,8 +65,6 @@ export function EditTaskDialog({
     contactId: task.contact?.id || '',
   });
 
-  const [previousData, setPreviousData] = useState<Task | null>(null);
-
   useEffect(() => {
     if (open) {
       setFormData({
@@ -89,67 +88,45 @@ export function EditTaskDialog({
     }
   }, [open, task, client]);
 
-  const { mutate, isPending } = useTx<UpdateTaskInput>({
-    optimistic: async (input) => {
-      await TasksModel.patch((draft) => {
-        const index = draft.findIndex((t) => t.id === input.id);
-        if (index !== -1) {
-          setPreviousData({ ...draft[index] });
-          draft[index] = {
-            ...draft[index],
-            title: input.title,
-            description: input.description || null,
-            dueDate: input.dueDate,
-            status: input.status,
-            priority: input.priority,
-            contact: input.contactId
-              ? contacts.find((c) => c.id === input.contactId) || null
-              : null,
-          };
-        }
-      });
-    },
-    rollback: async () => {
-      if (previousData) {
-        await TasksModel.patch((draft) => {
-          const index = draft.findIndex((t) => t.id === previousData.id);
-          if (index !== -1) {
-            draft[index] = previousData;
-          }
-        });
-        setPreviousData(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(UpdateTaskDocument, {
-        id: input.id,
-        input: {
-          title: input.title,
-          description: input.description || undefined,
-          dueDate: new Date(input.dueDate).toISOString(),
-          status: input.status,
-          priority: input.priority,
-          contactId: input.contactId || undefined,
-        },
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to update task');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useEditEntity<
+    UpdateTaskInput,
+    Task,
+    UpdateTaskMutation,
+    {
+      title: string;
+      description?: string;
+      dueDate: string;
+      status: Task['status'];
+      priority: Task['priority'];
+      contactId?: string;
+    }
+  >({
+    model: TasksModel,
+    document: UpdateTaskDocument,
+    entityName: 'task',
+    transformInput: (input) => ({
+      title: input.title,
+      description: input.description || undefined,
+      dueDate: new Date(input.dueDate).toISOString(),
+      status: input.status,
+      priority: input.priority,
+      contactId: input.contactId || undefined,
+    }),
+    extractResult: (data) => data.updateTask,
+    applyOptimisticUpdate: (entity, input) => ({
+      ...entity,
+      title: input.title,
+      description: input.description || null,
+      dueDate: input.dueDate,
+      status: input.status,
+      priority: input.priority,
+      contact: input.contactId
+        ? contacts.find((c) => c.id === input.contactId) || null
+        : null,
+    }),
     onSuccess: () => {
-      toast.success('Task updated successfully');
       onOpenChange(false);
-      setPreviousData(null);
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update task');
-      console.error(error);
     },
   });
 

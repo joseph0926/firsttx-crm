@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,11 +14,13 @@ import {
   UpdateContactDocument,
   ContactStatus,
   ContactPriority,
+  type UpdateContactMutation,
 } from '@/gql/graphql';
 import { ContactsModel } from '@/models/contacts';
 import type { Contact } from '@/models/contacts';
 import { toast } from 'sonner';
 import { DialogWrapper } from '../shared/DialogWrapper';
+import { useEditEntity } from '@/hooks/useEditEntity';
 
 interface EditContactDialogProps {
   contact: Contact;
@@ -44,8 +44,6 @@ export function EditContactDialog({
   onOpenChange,
   onSuccess,
 }: EditContactDialogProps) {
-  const client = useClient();
-
   const [formData, setFormData] = useState({
     name: contact.name,
     email: contact.email || '',
@@ -53,8 +51,6 @@ export function EditContactDialog({
     status: contact.status,
     priority: contact.priority,
   });
-
-  const [previousData, setPreviousData] = useState<Contact | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -68,63 +64,40 @@ export function EditContactDialog({
     }
   }, [open, contact]);
 
-  const { mutate, isPending } = useTx<UpdateContactInput>({
-    optimistic: async (input) => {
-      await ContactsModel.patch((draft) => {
-        const index = draft.findIndex((c) => c.id === input.id);
-        if (index !== -1) {
-          setPreviousData({ ...draft[index] });
-          draft[index] = {
-            ...draft[index],
-            name: input.name,
-            email: input.email || null,
-            phone: input.phone || null,
-            status: input.status,
-            priority: input.priority,
-          };
-        }
-      });
-    },
-    rollback: async () => {
-      if (previousData) {
-        await ContactsModel.patch((draft) => {
-          const index = draft.findIndex((c) => c.id === previousData.id);
-          if (index !== -1) {
-            draft[index] = previousData;
-          }
-        });
-        setPreviousData(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(UpdateContactDocument, {
-        id: input.id,
-        input: {
-          name: input.name,
-          email: input.email || undefined,
-          phone: input.phone || undefined,
-          status: input.status,
-          priority: input.priority,
-        },
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to update contact');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useEditEntity<
+    UpdateContactInput,
+    Contact,
+    UpdateContactMutation,
+    {
+      name: string;
+      email?: string;
+      phone?: string;
+      status: Contact['status'];
+      priority: Contact['priority'];
+    }
+  >({
+    model: ContactsModel,
+    document: UpdateContactDocument,
+    entityName: 'contact',
+    transformInput: (input) => ({
+      name: input.name,
+      email: input.email || undefined,
+      phone: input.phone || undefined,
+      status: input.status,
+      priority: input.priority,
+    }),
+    extractResult: (data) => data.updateContact,
+    applyOptimisticUpdate: (entity, input) => ({
+      ...entity,
+      name: input.name,
+      email: input.email || null,
+      phone: input.phone || null,
+      status: input.status,
+      priority: input.priority,
+    }),
     onSuccess: () => {
-      toast.success('Contact updated successfully');
       onOpenChange(false);
-      setPreviousData(null);
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update contact');
-      console.error(error);
     },
   });
 
