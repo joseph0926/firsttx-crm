@@ -1,10 +1,12 @@
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from './components/layout/AppLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
+import { RouteErrorBoundary } from './components/shared/RouteErrorBoundary';
 
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: '/',
@@ -22,6 +24,7 @@ export const router = createBrowserRouter([
   },
   {
     element: <AppLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: '/dashboard',
