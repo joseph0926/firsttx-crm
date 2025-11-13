@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { CreateTaskInput } from './dto/create-task.input';
@@ -6,6 +6,7 @@ import { UpdateTaskInput } from './dto/update-task.input';
 import { TaskFiltersInput } from './dto/task-filters.input';
 import { SortOrder } from '../common/enums/sort-order.enum';
 import { Prisma } from '@prisma/client';
+import { ResourceNotFoundException } from '../common/exceptions/app.exception';
 
 @Injectable()
 export class TasksService {
@@ -71,7 +72,7 @@ export class TasksService {
     });
 
     if (!task) {
-      throw new NotFoundException('Task not found');
+      throw new ResourceNotFoundException('Task', id);
     }
 
     return task;

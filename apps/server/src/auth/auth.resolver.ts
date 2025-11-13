@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
-import { UseGuards, ForbiddenException } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { RequestMagicLinkInput } from './dto/request-magic-link.input';
 import { VerifyMagicLinkInput } from './dto/verify-magic-link.input';
 import { AuthResponse } from './dto/auth-response.dto';
@@ -10,6 +10,10 @@ import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from '../users/user.entity';
+import {
+  ResourceNotFoundException,
+  ForbiddenException,
+} from '../common/exceptions/app.exception';
 
 const MAGIC_LINK_EXPIRES_MINUTES = 15;
 
@@ -51,7 +55,7 @@ export class AuthResolver {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new ResourceNotFoundException('User', email);
     }
 
     const accessToken = this.authService.generateToken(user);

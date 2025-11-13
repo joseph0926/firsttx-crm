@@ -1,6 +1,11 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  MagicLinkInvalidException,
+  MagicLinkAlreadyUsedException,
+  MagicLinkExpiredException,
+} from '../../common/exceptions/app.exception';
 
 const MAGIC_LINK_EXPIRES_MINUTES = 15;
 
@@ -22,7 +27,6 @@ export class MagicLinkService {
       },
     });
 
-    // TODO: Replace with actual email service in production
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     console.log(`\n🔗 Magic Link for ${email}:`);
     console.log(`${frontendUrl}/auth/verify?token=${token}`);
@@ -37,18 +41,17 @@ export class MagicLinkService {
     });
 
     if (!magicLink) {
-      throw new BadRequestException('Invalid magic link');
+      throw new MagicLinkInvalidException();
     }
 
     if (magicLink.usedAt) {
-      throw new BadRequestException('Magic link has already been used');
+      throw new MagicLinkAlreadyUsedException();
     }
 
     if (magicLink.expiresAt < new Date()) {
-      throw new BadRequestException('Magic link has expired');
+      throw new MagicLinkExpiredException();
     }
 
-    // TODO: Clean up expired magic links periodically
     await this.prisma.magicLink.update({
       where: { token },
       data: { usedAt: new Date() },

@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactInput } from './dto/create-contact.input';
 import { UpdateContactInput } from './dto/update-contact.input';
+import { ResourceNotFoundException } from '../common/exceptions/app.exception';
 
 @Injectable()
 export class ContactsService {
@@ -32,7 +33,7 @@ export class ContactsService {
     });
 
     if (!contact) {
-      throw new NotFoundException('Contact not found');
+      throw new ResourceNotFoundException('Contact', id);
     }
 
     return contact;

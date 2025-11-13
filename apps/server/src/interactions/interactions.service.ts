@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { CreateInteractionInput } from './dto/create-interaction.input';
@@ -6,6 +6,7 @@ import { UpdateInteractionInput } from './dto/update-interaction.input';
 import { InteractionFiltersInput } from './dto/interaction-filters.input';
 import { SortOrder } from '../common/enums/sort-order.enum';
 import { Prisma } from '@prisma/client';
+import { ResourceNotFoundException } from '../common/exceptions/app.exception';
 
 @Injectable()
 export class InteractionsService {
@@ -70,7 +71,7 @@ export class InteractionsService {
     });
 
     if (!interaction) {
-      throw new NotFoundException('Interaction not found');
+      throw new ResourceNotFoundException('Interaction', id);
     }
 
     return interaction;
