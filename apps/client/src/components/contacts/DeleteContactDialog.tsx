@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import {
   Dialog,
   DialogContent,
@@ -10,11 +7,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { RemoveContactDocument } from '@/gql/graphql';
+import {
+  RemoveContactDocument,
+  type RemoveContactMutation,
+} from '@/gql/graphql';
 import { ContactsModel } from '@/models/contacts';
 import type { Contact } from '@/models/contacts';
-import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { useDeleteEntity } from '@/hooks/useDeleteEntity';
 
 interface DeleteContactDialogProps {
   contact: Contact;
@@ -23,61 +23,23 @@ interface DeleteContactDialogProps {
   onSuccess?: () => void;
 }
 
-interface DeleteContactInput {
-  id: string;
-}
-
 export function DeleteContactDialog({
   contact,
   open,
   onOpenChange,
   onSuccess,
 }: DeleteContactDialogProps) {
-  const client = useClient();
-  const [deletedContact, setDeletedContact] = useState<Contact | null>(null);
-
-  const { mutate, isPending } = useTx<DeleteContactInput>({
-    optimistic: async (input) => {
-      await ContactsModel.patch((draft) => {
-        const index = draft.findIndex((c) => c.id === input.id);
-        if (index !== -1) {
-          setDeletedContact({ ...draft[index] });
-          draft.splice(index, 1);
-        }
-      });
-    },
-    rollback: async () => {
-      if (deletedContact) {
-        await ContactsModel.patch((draft) => {
-          draft.push(deletedContact);
-        });
-        setDeletedContact(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(RemoveContactDocument, {
-        id: input.id,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to delete contact');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
-    onSuccess: () => {
-      toast.success('Contact deleted successfully');
-      onOpenChange(false);
-      setDeletedContact(null);
-      onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to delete contact');
-      console.error(error);
-    },
-  });
+  const { mutate, isPending } = useDeleteEntity<Contact, RemoveContactMutation>(
+    {
+      model: ContactsModel,
+      document: RemoveContactDocument,
+      entityName: 'contact',
+      onSuccess: () => {
+        onOpenChange(false);
+        onSuccess?.();
+      },
+    }
+  );
 
   const handleDelete = () => {
     mutate({ id: contact.id });

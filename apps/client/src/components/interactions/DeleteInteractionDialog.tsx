@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import {
   Dialog,
   DialogContent,
@@ -10,11 +7,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { RemoveInteractionDocument } from '@/gql/graphql';
+import {
+  RemoveInteractionDocument,
+  type RemoveInteractionMutation,
+} from '@/gql/graphql';
 import { InteractionsModel } from '@/models/interactions';
 import type { Interaction } from '@/models/interactions';
-import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { useDeleteEntity } from '@/hooks/useDeleteEntity';
 
 interface DeleteInteractionDialogProps {
   interaction: Interaction;
@@ -23,59 +23,22 @@ interface DeleteInteractionDialogProps {
   onSuccess?: () => void;
 }
 
-interface DeleteInteractionInput {
-  id: string;
-}
-
 export function DeleteInteractionDialog({
   interaction,
   open,
   onOpenChange,
   onSuccess,
 }: DeleteInteractionDialogProps) {
-  const client = useClient();
-  const [deletedInteraction, setDeletedInteraction] = useState<Interaction | null>(null);
-
-  const { mutate, isPending } = useTx<DeleteInteractionInput>({
-    optimistic: async (input) => {
-      await InteractionsModel.patch((draft) => {
-        const index = draft.findIndex((i) => i.id === input.id);
-        if (index !== -1) {
-          setDeletedInteraction({ ...draft[index] });
-          draft.splice(index, 1);
-        }
-      });
-    },
-    rollback: async () => {
-      if (deletedInteraction) {
-        await InteractionsModel.patch((draft) => {
-          draft.push(deletedInteraction);
-        });
-        setDeletedInteraction(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(RemoveInteractionDocument, {
-        id: input.id,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to delete interaction');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useDeleteEntity<
+    Interaction,
+    RemoveInteractionMutation
+  >({
+    model: InteractionsModel,
+    document: RemoveInteractionDocument,
+    entityName: 'interaction',
     onSuccess: () => {
-      toast.success('Interaction deleted successfully');
       onOpenChange(false);
-      setDeletedInteraction(null);
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to delete interaction');
-      console.error(error);
     },
   });
 

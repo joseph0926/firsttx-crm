@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import { useClient } from 'urql';
-import { useTx } from '@firsttx/tx';
 import {
   Dialog,
   DialogContent,
@@ -10,11 +7,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { RemoveTaskDocument } from '@/gql/graphql';
+import { RemoveTaskDocument, type RemoveTaskMutation } from '@/gql/graphql';
 import { TasksModel } from '@/models/tasks';
 import type { Task } from '@/models/tasks';
-import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { useDeleteEntity } from '@/hooks/useDeleteEntity';
 
 interface DeleteTaskDialogProps {
   task: Task;
@@ -23,59 +20,19 @@ interface DeleteTaskDialogProps {
   onSuccess?: () => void;
 }
 
-interface DeleteTaskInput {
-  id: string;
-}
-
 export function DeleteTaskDialog({
   task,
   open,
   onOpenChange,
   onSuccess,
 }: DeleteTaskDialogProps) {
-  const client = useClient();
-  const [deletedTask, setDeletedTask] = useState<Task | null>(null);
-
-  const { mutate, isPending } = useTx<DeleteTaskInput>({
-    optimistic: async (input) => {
-      await TasksModel.patch((draft) => {
-        const index = draft.findIndex((t) => t.id === input.id);
-        if (index !== -1) {
-          setDeletedTask({ ...draft[index] });
-          draft.splice(index, 1);
-        }
-      });
-    },
-    rollback: async () => {
-      if (deletedTask) {
-        await TasksModel.patch((draft) => {
-          draft.push(deletedTask);
-        });
-        setDeletedTask(null);
-      }
-    },
-    request: async (input) => {
-      const result = await client.mutation(RemoveTaskDocument, {
-        id: input.id,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to delete task');
-      }
-
-      return result.data;
-    },
-    transition: true,
-    retry: { maxAttempts: 2, delayMs: 500 },
+  const { mutate, isPending } = useDeleteEntity<Task, RemoveTaskMutation>({
+    model: TasksModel,
+    document: RemoveTaskDocument,
+    entityName: 'task',
     onSuccess: () => {
-      toast.success('Task deleted successfully');
       onOpenChange(false);
-      setDeletedTask(null);
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to delete task');
-      console.error(error);
     },
   });
 
