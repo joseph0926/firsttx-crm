@@ -7,6 +7,8 @@ import { TaskFiltersInput } from './dto/task-filters.input';
 import { SortOrder } from '../common/enums/sort-order.enum';
 import { Prisma } from '@prisma/client';
 import { ResourceNotFoundException } from '../common/exceptions/app.exception';
+import { PaginationInput } from '@/common/dto/pagination.input';
+import { PaginatedTasks } from './dto/paginated-tasks.dto';
 
 @Injectable()
 export class TasksService {
@@ -35,7 +37,13 @@ export class TasksService {
     });
   }
 
-  async findAll(userId: string, filters?: TaskFiltersInput) {
+  async findAll(
+    userId: string,
+    pagination: PaginationInput,
+    filters?: TaskFiltersInput
+  ): Promise<PaginatedTasks> {
+    const { page, limit } = pagination;
+
     const where: Prisma.TaskWhereInput = {
       userId,
       ...(filters?.status && { status: filters.status }),
@@ -57,10 +65,29 @@ export class TasksService {
       orderBy.createdAt = SortOrder.DESC;
     }
 
-    return this.prisma.task.findMany({
-      where,
-      orderBy,
-    });
+    const [items, total] = await Promise.all([
+      this.prisma.task.findMany({
+        where,
+        orderBy,
+        take: (page - 1) * limit,
+        skip: limit,
+      }),
+      this.prisma.task.count({
+        where,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items,
+      limit,
+      page,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
   }
 
   async findOne(id: string, userId: string) {

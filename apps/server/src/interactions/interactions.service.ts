@@ -7,12 +7,14 @@ import { InteractionFiltersInput } from './dto/interaction-filters.input';
 import { SortOrder } from '../common/enums/sort-order.enum';
 import { Prisma } from '@prisma/client';
 import { ResourceNotFoundException } from '../common/exceptions/app.exception';
+import { PaginationInput } from '@/common/dto/pagination.input';
+import { PaginatedInteractions } from './dto/paginated-interactions.dto';
 
 @Injectable()
 export class InteractionsService {
   constructor(
     private prisma: PrismaService,
-    private contactsService: ContactsService,
+    private contactsService: ContactsService
   ) {}
 
   async create(userId: string, data: CreateInteractionInput) {
@@ -29,7 +31,13 @@ export class InteractionsService {
     });
   }
 
-  async findAll(userId: string, filters?: InteractionFiltersInput) {
+  async findAll(
+    userId: string,
+    pagination: PaginationInput,
+    filters?: InteractionFiltersInput
+  ): Promise<PaginatedInteractions> {
+    const { page, limit } = pagination;
+
     const where: Prisma.InteractionWhereInput = {
       userId,
       ...(filters?.type && { type: filters.type }),
@@ -50,13 +58,30 @@ export class InteractionsService {
       orderBy.createdAt = SortOrder.DESC;
     }
 
-    return this.prisma.interaction.findMany({
-      where,
-      orderBy,
-      include: {
-        contact: true,
-      },
-    });
+    const [items, total] = await Promise.all([
+      this.prisma.interaction.findMany({
+        where,
+        orderBy,
+        include: {
+          contact: true,
+        },
+        take: (page - 1) * limit,
+        skip: limit,
+      }),
+      this.prisma.interaction.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / page);
+
+    return {
+      items,
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
   }
 
   async findOne(id: string, userId: string) {

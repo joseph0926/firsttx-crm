@@ -21,25 +21,25 @@ export class Contact {
   name!: string;
 
   @Field({ nullable: true })
-  email?: string;
+  email?: string | null;
 
   @Field({ nullable: true })
-  phone?: string;
+  phone?: string | null;
 
   @Field({ nullable: true })
-  company?: string;
+  company?: string | null;
 
   @Field({ nullable: true })
-  position?: string;
+  position?: string | null;
 
   @Field({ nullable: true })
-  notes?: string;
+  notes?: string | null;
 
   @Field(() => [String])
   tags!: string[];
 
   @Field({ nullable: true })
-  lastContactedAt?: Date;
+  lastContactedAt?: Date | null;
 
   @Field(() => ContactPriority)
   priority!: ContactPriority;
@@ -53,12 +53,12 @@ export class Contact {
   @Field()
   updatedAt!: Date;
 
-  @Field(() => User)
-  user!: User;
+  @Field(() => User, { nullable: true })
+  user?: User;
 
-  @Field(() => [Interaction])
-  interactions!: Interaction[];
+  @Field(() => [Interaction], { nullable: true })
+  interactions?: Interaction[];
 
-  @Field(() => [Task])
-  tasks!: Task[];
+  @Field(() => [Task], { nullable: true })
+  tasks?: Task[];
 }

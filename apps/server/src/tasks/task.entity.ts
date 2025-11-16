@@ -26,7 +26,7 @@ export class Task {
   dueDate!: Date;
 
   @Field({ nullable: true })
-  description?: string;
+  description?: string | null;
 
   @Field(() => TaskPriority)
   priority!: TaskPriority;
@@ -37,8 +37,8 @@ export class Task {
   @Field()
   updatedAt!: Date;
 
-  @Field(() => User)
-  user!: User;
+  @Field(() => User, { nullable: true })
+  user?: User;
 
   @Field(() => Contact, { nullable: true })
   contact?: Contact;

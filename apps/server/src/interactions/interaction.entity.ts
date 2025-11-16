@@ -19,7 +19,7 @@ export class Interaction {
   date!: Date;
 
   @Field({ nullable: true })
-  notes?: string;
+  notes?: string | null;
 
   @Field()
   createdAt!: Date;
@@ -27,9 +27,9 @@ export class Interaction {
   @Field()
   updatedAt!: Date;
 
-  @Field(() => User)
-  user!: User;
+  @Field(() => User, { nullable: true })
+  user?: User;
 
-  @Field(() => Contact)
-  contact!: Contact;
+  @Field(() => Contact, { nullable: true })
+  contact?: Contact;
 }

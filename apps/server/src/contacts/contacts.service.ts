@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactInput } from './dto/create-contact.input';
 import { UpdateContactInput } from './dto/update-contact.input';
 import { ResourceNotFoundException } from '../common/exceptions/app.exception';
+import { PaginationInput } from '@/common/dto/pagination.input';
+import { PaginatedContacts } from './dto/paginated-contacts.dto';
 
 @Injectable()
 export class ContactsService {
@@ -17,11 +19,35 @@ export class ContactsService {
     });
   }
 
-  async findAll(userId: string) {
-    return this.prisma.contact.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(
+    userId: string,
+    pagination: PaginationInput
+  ): Promise<PaginatedContacts> {
+    const { page, limit } = pagination;
+
+    const where = { userId };
+
+    const [items, total] = await Promise.all([
+      this.prisma.contact.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.contact.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
   }
 
   async findOne(id: string, userId: string) {
