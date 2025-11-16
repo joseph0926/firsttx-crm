@@ -1,6 +1,14 @@
-query GetContacts {
-  contacts {
-    ...ContactListItem
+query GetContacts($pagination: PaginationInput) {
+  contacts(pagination: $pagination) {
+    items {
+      ...ContactListItem
+    }
+    total
+    page
+    limit
+    totalPages
+    hasNextPage
+    hasPreviousPage
   }
 }
 
