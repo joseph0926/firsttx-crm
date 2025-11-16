@@ -20,25 +20,25 @@ export class Contact {
   @Field()
   name!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   email?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   phone?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   company?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   position?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   notes?: string | null;
 
   @Field(() => [String])
   tags!: string[];
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   lastContactedAt?: Date | null;
 
   @Field(() => ContactPriority)

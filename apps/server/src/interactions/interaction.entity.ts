@@ -18,7 +18,7 @@ export class Interaction {
   @Field()
   date!: Date;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   notes?: string | null;
 
   @Field()

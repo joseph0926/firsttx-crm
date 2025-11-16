@@ -8,6 +8,7 @@ import { InteractionFiltersInput } from './dto/interaction-filters.input';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/user.entity';
+import { PaginationInput } from '@/common/dto/pagination.input';
 
 @Resolver(() => Interaction)
 @UseGuards(JwtAuthGuard)
@@ -18,8 +19,14 @@ export class InteractionsResolver {
   async interactions(
     @Args('filters', { nullable: true }) filters: InteractionFiltersInput,
     @CurrentUser() user: User,
+    @Args('pagination', { nullable: true })
+    pagination?: PaginationInput
   ) {
-    return this.interactionsService.findAll(user.id, filters);
+    return this.interactionsService.findAll(
+      user.id,
+      pagination ?? new PaginationInput(),
+      filters
+    );
   }
 
   @Query(() => Interaction)
@@ -30,7 +37,7 @@ export class InteractionsResolver {
   @Mutation(() => Interaction)
   async createInteraction(
     @Args('input') input: CreateInteractionInput,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ) {
     return this.interactionsService.create(user.id, input);
   }
@@ -39,7 +46,7 @@ export class InteractionsResolver {
   async updateInteraction(
     @Args('id') id: string,
     @Args('input') input: UpdateInteractionInput,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ) {
     return this.interactionsService.update(id, user.id, input);
   }

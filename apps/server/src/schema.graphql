@@ -12,7 +12,7 @@ type Contact {
   createdAt: DateTime!
   email: String
   id: ID!
-  interactions: [Interaction!]!
+  interactions: [Interaction!]
   lastContactedAt: DateTime
   name: String!
   notes: String
@@ -21,9 +21,9 @@ type Contact {
   priority: ContactPriority!
   status: ContactStatus!
   tags: [String!]!
-  tasks: [Task!]!
+  tasks: [Task!]
   updatedAt: DateTime!
-  user: User!
+  user: User
 }
 
 enum ContactPriority {
@@ -100,14 +100,14 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Interaction {
-  contact: Contact!
+  contact: Contact
   createdAt: DateTime!
   date: DateTime!
   id: ID!
   notes: String
   type: InteractionType!
   updatedAt: DateTime!
-  user: User!
+  user: User
 }
 
 input InteractionFiltersInput {
@@ -164,9 +164,24 @@ type Mutation {
   verifyMagicLink(input: VerifyMagicLinkInput!): AuthResponse!
 }
 
+type PaginatedContacts {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Contact!]!
+  limit: Int!
+  page: Int!
+  total: Int!
+  totalPages: Int!
+}
+
+input PaginationInput {
+  limit: Int! = 20
+  page: Int! = 1
+}
+
 type Query {
   contact(id: String!): Contact!
-  contacts: [Contact!]!
+  contacts(pagination: PaginationInput): PaginatedContacts!
 
   """Get dashboard statistics for the current user"""
   dashboardStats: DashboardStats!
@@ -174,10 +189,10 @@ type Query {
   """Health check endpoint"""
   hello: String!
   interaction(id: String!): Interaction!
-  interactions(filters: InteractionFiltersInput): [Interaction!]!
+  interactions(filters: InteractionFiltersInput, pagination: PaginationInput): [Interaction!]!
   me: User!
   task(id: String!): Task!
-  tasks(filters: TaskFiltersInput): [Task!]!
+  tasks(filters: TaskFiltersInput, pagination: PaginationInput): [Task!]!
 }
 
 input RequestMagicLinkInput {
@@ -200,7 +215,7 @@ type Task {
   status: TaskStatus!
   title: String!
   updatedAt: DateTime!
-  user: User!
+  user: User
 }
 
 input TaskFiltersInput {

@@ -8,6 +8,7 @@ import { TaskFiltersInput } from './dto/task-filters.input';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/user.entity';
+import { PaginationInput } from '@/common/dto/pagination.input';
 
 @Resolver(() => Task)
 @UseGuards(JwtAuthGuard)
@@ -17,9 +18,15 @@ export class TasksResolver {
   @Query(() => [Task])
   async tasks(
     @Args('filters', { nullable: true }) filters: TaskFiltersInput,
-    @CurrentUser() user: User
+    @CurrentUser() user: User,
+    @Args('pagination', { nullable: true })
+    pagination?: PaginationInput
   ) {
-    return this.tasksService.findAll(user.id, filters);
+    return this.tasksService.findAll(
+      user.id,
+      pagination ?? new PaginationInput(),
+      filters
+    );
   }
 
   @Query(() => Task)

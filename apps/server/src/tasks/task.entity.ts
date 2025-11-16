@@ -25,7 +25,7 @@ export class Task {
   @Field()
   dueDate!: Date;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   description?: string | null;
 
   @Field(() => TaskPriority)
